@@ -45,3 +45,7 @@ button, a, input, select, textarea, [tabindex]:not([tabindex='-1']) { outline: n
 .hero-flow-reverse { animation: hero-flow 11s linear infinite reverse; }
 .hero-node { animation: hero-orbit 22s linear infinite; transform-origin: 50% 50%; }
 .hero-node-reverse { animation: hero-orbit-reverse 28s linear infinite; transform-origin: 50% 50%; }
+@keyframes fragment-flow { from { stroke-dashoffset: 0; opacity: .18; } 50% { opacity: .75; } to { stroke-dashoffset: -48; opacity: .18; } }
+.fragment-flow { fill: none; stroke: hsl(var(--accent)); stroke-width: 1.5; stroke-dasharray: 3 9; animation: fragment-flow 6s linear infinite; }
+.fragment-flow-delay { animation-delay: -2.5s; }
+@media (prefers-reduced-motion: reduce) { .fragment-flow, .fragment-flow-delay { animation: none; opacity: .35; } }
