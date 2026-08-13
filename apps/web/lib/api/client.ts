@@ -4,10 +4,19 @@ import { ApiError, NetworkError, SessionExpiredError } from './errors';
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   let response: Response;
   try {
+    const browser = globalThis as typeof globalThis & { document?: { cookie: string } };
+    const csrf = browser.document?.cookie
+      .split('; ')
+      .find((value: string) => value.startsWith('sfo_csrf='))
+      ?.split('=')[1];
     response = await fetch(`${clientEnv.NEXT_PUBLIC_API_URL}${path}`, {
       ...init,
       credentials: 'include',
-      headers: { 'Content-Type': 'application/json', ...init.headers },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(csrf ? { 'x-csrf-token': decodeURIComponent(csrf) } : {}),
+        ...init.headers,
+      },
     });
   } catch {
     throw new NetworkError();

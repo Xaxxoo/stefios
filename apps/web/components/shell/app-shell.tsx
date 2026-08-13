@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
 import { cn } from '../../lib/utils';
+import { ConnectWalletButton } from '../wallet/connect-wallet-button';
 import { useSession } from '../../lib/session/context';
 import { useWallet } from '../../lib/wallet/context';
 import { Button, IconButton, NetworkBadge, SearchInput } from '../ui/design-system';
@@ -171,9 +172,17 @@ function Topbar({ onMenu }: { onMenu: () => void }) {
       </div>
       <div className="ml-auto flex items-center gap-2">
         <NetworkBadge network={session?.network === 'mainnet' ? 'mainnet' : 'testnet'} />
-        <Button size="sm" variant="secondary" className="hidden sm:inline-flex">
-          {address ? `${address.slice(0, 5)}…${address.slice(-4)}` : 'Connect wallet'}
-        </Button>
+        {address ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            className="hidden sm:inline-flex"
+          >{`${address.slice(0, 5)}…${address.slice(-4)}`}</Button>
+        ) : (
+          <span className="hidden sm:inline-flex">
+            <ConnectWalletButton compact />
+          </span>
+        )}
         <IconButton label="Notifications">♢</IconButton>
         <IconButton label="Account menu">{address?.slice(0, 1) ?? '○'}</IconButton>
       </div>

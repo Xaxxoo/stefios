@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { IconButton } from '../ui/design-system';
+import { ConnectWalletModal } from '../wallet/connect-wallet-modal';
 
 const links = [
   ['Product', '#product'],
@@ -16,6 +17,7 @@ const links = [
 
 export function MarketingHeader() {
   const [open, setOpen] = useState(false);
+  const [walletOpen, setWalletOpen] = useState(false);
   const linkClass =
     'inline-flex h-9 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors';
   return (
@@ -47,12 +49,12 @@ export function MarketingHeader() {
           >
             Launch App
           </Link>
-          <Link
+          <button
             className={`${linkClass} border-transparent bg-[hsl(var(--accent))] text-[hsl(var(--background))] hover:brightness-110`}
-            href="/dashboard"
+            onClick={() => setWalletOpen(true)}
           >
             Connect Wallet
-          </Link>
+          </button>
         </div>
         <IconButton
           label="Open marketing navigation"
@@ -85,15 +87,19 @@ export function MarketingHeader() {
             <Link className={`${linkClass} border-white/10 bg-white/[0.06]`} href="/dashboard">
               Launch App
             </Link>
-            <Link
+            <button
               className={`${linkClass} border-transparent bg-[hsl(var(--accent))] text-[hsl(var(--background))]`}
-              href="/dashboard"
+              onClick={() => {
+                setOpen(false);
+                setWalletOpen(true);
+              }}
             >
               Connect Wallet
-            </Link>
+            </button>
           </div>
         </div>
       )}
+      <ConnectWalletModal open={walletOpen} onClose={() => setWalletOpen(false)} />
     </header>
   );
 }
