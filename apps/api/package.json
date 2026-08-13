@@ -2,7 +2,34 @@
   "name": "@sfo/api",
   "private": true,
   "version": "0.1.0",
-  "scripts": { "dev": "tsx watch src/main.ts", "build": "tsc", "typecheck": "tsc --noEmit" },
-  "dependencies": { "@nestjs/common": "^11.0.3", "@nestjs/core": "^11.0.3", "reflect-metadata": "^0.2.2", "rxjs": "^7.8.1" },
-  "devDependencies": { "tsx": "^4.19.2" }
+  "scripts": {
+    "dev": "tsx --tsconfig tsconfig.json watch src/main.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --tsconfig tsconfig.json --test test/**/*.spec.ts"
+  },
+  "dependencies": {
+    "@nestjs/bullmq": "^11.0.2",
+    "@nestjs/common": "^11.0.3",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.3",
+    "@nestjs/platform-express": "^11.0.3",
+    "@nestjs/swagger": "^11.0.3",
+    "@nestjs/typeorm": "^11.0.0",
+    "bullmq": "^5.34.10",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "ioredis": "^5.4.1",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.0.3",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.2"
+  }
 }
