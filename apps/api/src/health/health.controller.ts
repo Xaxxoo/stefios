@@ -1,10 +1,11 @@
-import { Controller, Get, HttpCode, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { HealthService } from './health.service';
+import type { HealthService } from './health.service';
+import { HealthService as HealthServiceToken } from './health.service';
 
 @Controller('health')
 export class HealthController {
-  constructor(private readonly health: HealthService) {}
+  constructor(@Inject(HealthServiceToken) private readonly health: HealthService) {}
 
   @Get()
   healthcheck() {

@@ -52,13 +52,13 @@ The web and API deploy as separate stateless services. PostgreSQL and Redis are 
 
 ## Planned package ownership
 
-| Package | Responsibility |
-| --- | --- |
-| `apps/web` | Next.js UI and browser wallet boundary |
-| `apps/api` | NestJS API and workers |
-| `packages/shared` | Shared DTO and domain-safe contracts |
-| `packages/ui` | shadcn/ui-based primitives |
-| `packages/stellar` | Stellar SDK/RPC and transaction envelopes |
-| `packages/protocol-adapters` | Provider integrations and normalization |
-| `packages/financial-math` | Portfolio, risk, yield, and valuation math |
-| `packages/config` | Zod-backed environment configuration |
+| Package                      | Responsibility                             |
+| ---------------------------- | ------------------------------------------ |
+| `apps/web`                   | Next.js UI and browser wallet boundary     |
+| `apps/api`                   | NestJS API and workers                     |
+| `packages/shared`            | Shared DTO and domain-safe contracts       |
+| `packages/ui`                | shadcn/ui-based primitives                 |
+| `packages/stellar`           | Stellar SDK/RPC and transaction envelopes  |
+| `packages/protocol-adapters` | Provider integrations and normalization    |
+| `packages/financial-math`    | Portfolio, risk, yield, and valuation math |
+| `packages/config`            | Zod-backed environment configuration       |

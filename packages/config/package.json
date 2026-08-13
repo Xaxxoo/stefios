@@ -1,1 +1,8 @@
-{ "name": "@sfo/config", "private": true, "version": "0.1.0", "scripts": { "typecheck": "tsc --noEmit" } }
+{
+  "name": "@sfo/config",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

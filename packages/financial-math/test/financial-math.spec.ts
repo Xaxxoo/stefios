@@ -1,6 +1,19 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { addition, division, healthRatio, loanToValue, minimumReceived, multiplication, percentageChange, portfolioWeight, priceConversion, slippage, subtraction, weightedApy } from '../src/index';
+import {
+  addition,
+  division,
+  healthRatio,
+  loanToValue,
+  minimumReceived,
+  multiplication,
+  percentageChange,
+  portfolioWeight,
+  priceConversion,
+  slippage,
+  subtraction,
+  weightedApy,
+} from '../src/index';
 
 describe('decimal-safe financial math', () => {
   it('preserves precision for basic arithmetic', () => {
@@ -12,7 +25,13 @@ describe('decimal-safe financial math', () => {
 
   it('calculates changes and weighted rates', () => {
     assert.equal(percentageChange('100', '125'), '25');
-    assert.equal(weightedApy([{ rate: '10', weight: '1' }, { rate: '20', weight: '3' }]), '17.5');
+    assert.equal(
+      weightedApy([
+        { rate: '10', weight: '1' },
+        { rate: '20', weight: '3' },
+      ]),
+      '17.5',
+    );
     assert.equal(weightedApy([]), '0');
   });
 

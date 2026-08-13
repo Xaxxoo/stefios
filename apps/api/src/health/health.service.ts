@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import Redis from 'ioredis';
+import type { DataSource } from 'typeorm';
+import type Redis from 'ioredis';
 import { REDIS } from '../infrastructure/redis.module';
 
 @Injectable()

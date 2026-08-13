@@ -1,1 +1,8 @@
-{ "name": "@sfo/stellar", "private": true, "version": "0.1.0", "scripts": { "typecheck": "tsc --noEmit" } }
+{
+  "name": "@sfo/stellar",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}

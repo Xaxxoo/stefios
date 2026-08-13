@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { ApplicationEntity, JSONB_COLUMN, NUMERIC_COLUMN } from './base.entity';
 import { Asset } from './assets.entity';
-import { Protocol } from './protocol.entity';
 import { StellarAccount, User } from './identity.entity';
 
 @Entity('transactions')

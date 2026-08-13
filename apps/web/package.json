@@ -2,6 +2,16 @@
   "name": "@sfo/web",
   "private": true,
   "version": "0.1.0",
-  "scripts": { "dev": "next dev", "build": "next build", "typecheck": "tsc --noEmit" },
-  "dependencies": { "@sfo/financial-math": "workspace:*", "@sfo/shared": "workspace:*", "next": "^15.1.3", "react": "^19.0.0", "react-dom": "^19.0.0" }
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sfo/financial-math": "workspace:*",
+    "@sfo/shared": "workspace:*",
+    "next": "^15.1.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
 }

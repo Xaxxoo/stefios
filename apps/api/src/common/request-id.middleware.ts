@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import type { NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
 
 @Injectable()

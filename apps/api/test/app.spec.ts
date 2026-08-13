@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import * as assert from 'node:assert/strict';
 import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import request = require('supertest');
+import type { INestApplication } from '@nestjs/common';
+import request from 'supertest';
 import { HealthController } from '../src/health/health.controller';
 import { HealthService } from '../src/health/health.service';
 
