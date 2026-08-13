@@ -7,4 +7,5 @@ export const configuration = registerAs('app', () => ({
   databaseUrl: process.env.DATABASE_URL,
   redisUrl: process.env.REDIS_URL,
   stellarNetwork: process.env.STELLAR_NETWORK ?? 'testnet',
+  stellarRpcUrl: process.env.STELLAR_RPC_URL,
 }));
