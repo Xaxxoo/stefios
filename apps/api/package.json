@@ -9,6 +9,8 @@
     "test": "tsx --tsconfig tsconfig.json --test test/**/*.spec.ts"
   },
   "dependencies": {
+    "@sfo/financial-math": "workspace:*",
+    "@sfo/shared": "workspace:*",
     "@nestjs/bullmq": "^11.0.2",
     "@nestjs/common": "^11.0.3",
     "@nestjs/config": "^4.0.2",

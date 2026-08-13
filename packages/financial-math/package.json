@@ -1,1 +1,8 @@
-{ "name": "@sfo/financial-math", "private": true, "version": "0.1.0", "scripts": { "typecheck": "tsc --noEmit" } }
+{
+  "name": "@sfo/financial-math",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": { "typecheck": "tsc --noEmit", "test": "tsx --test test/**/*.spec.ts" },
+  "dependencies": { "decimal.js": "^10.4.3", "@sfo/shared": "workspace:*" },
+  "devDependencies": { "tsx": "^4.19.2" }
+}
