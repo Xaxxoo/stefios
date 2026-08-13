@@ -1,0 +1,17 @@
+node_modules/
+.pnpm-store/
+.next/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+!.env.test
+!.env.development
+!.env.production
+.turbo/
+.DS_Store
+*.tsbuildinfo
+postgres-data/
+redis-data/

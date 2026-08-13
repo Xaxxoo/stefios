@@ -1,0 +1,8 @@
+{
+  "name": "@sfo/api",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": { "dev": "tsx watch src/main.ts", "build": "tsc", "typecheck": "tsc --noEmit" },
+  "dependencies": { "@nestjs/common": "^11.0.3", "@nestjs/core": "^11.0.3", "reflect-metadata": "^0.2.2", "rxjs": "^7.8.1" },
+  "devDependencies": { "tsx": "^4.19.2" }
+}

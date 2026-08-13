@@ -1,0 +1,1 @@
+{ "name": "@sfo/financial-math", "private": true, "version": "0.1.0", "scripts": { "typecheck": "tsc --noEmit" } }
