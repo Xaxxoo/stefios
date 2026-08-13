@@ -19,33 +19,164 @@
   --radius: 0.75rem;
 }
 
-* { border-color: hsl(var(--border)); }
-html { background: hsl(var(--background)); color-scheme: dark; }
-body { background: hsl(var(--background)); color: hsl(var(--foreground)); font-feature-settings: 'tnum' 1, 'cv02' 1; }
-button, a, input, select, textarea, [tabindex]:not([tabindex='-1']) { outline: none; }
-:focus-visible { outline: 2px solid hsl(var(--accent)); outline-offset: 3px; }
-::selection { background: hsl(var(--accent-muted)); color: hsl(var(--foreground)); }
+* {
+  border-color: hsl(var(--border));
+}
+html {
+  background: hsl(var(--background));
+  color-scheme: dark;
+}
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings:
+    'tnum' 1,
+    'cv02' 1;
+}
+button,
+a,
+input,
+select,
+textarea,
+[tabindex]:not([tabindex='-1']) {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid hsl(var(--accent));
+  outline-offset: 3px;
+}
+::selection {
+  background: hsl(var(--accent-muted));
+  color: hsl(var(--foreground));
+}
 
 @layer utilities {
-  .text-balance { text-wrap: balance; }
-  .tabular-nums { font-variant-numeric: tabular-nums; }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
-  .hero-orbit, .hero-orbit-reverse, .hero-flow, .hero-flow-reverse, .hero-node, .hero-node-reverse { animation: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+  .hero-orbit,
+  .hero-orbit-reverse,
+  .hero-flow,
+  .hero-flow-reverse,
+  .hero-node,
+  .hero-node-reverse {
+    animation: none;
+  }
 }
 
-@keyframes hero-orbit { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-@keyframes hero-orbit-reverse { from { transform: translate(-50%, -50%) rotate(360deg); } to { transform: translate(-50%, -50%) rotate(0deg); } }
-@keyframes hero-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -80; } }
-.hero-orbit { animation: hero-orbit 32s linear infinite; }
-.hero-orbit-reverse { animation: hero-orbit-reverse 46s linear infinite; }
-.hero-flow { animation: hero-flow 8s linear infinite; }
-.hero-flow-reverse { animation: hero-flow 11s linear infinite reverse; }
-.hero-node { animation: hero-orbit 22s linear infinite; transform-origin: 50% 50%; }
-.hero-node-reverse { animation: hero-orbit-reverse 28s linear infinite; transform-origin: 50% 50%; }
-@keyframes fragment-flow { from { stroke-dashoffset: 0; opacity: .18; } 50% { opacity: .75; } to { stroke-dashoffset: -48; opacity: .18; } }
-.fragment-flow { fill: none; stroke: hsl(var(--accent)); stroke-width: 1.5; stroke-dasharray: 3 9; animation: fragment-flow 6s linear infinite; }
-.fragment-flow-delay { animation-delay: -2.5s; }
-@media (prefers-reduced-motion: reduce) { .fragment-flow, .fragment-flow-delay { animation: none; opacity: .35; } }
+@keyframes hero-orbit {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@keyframes hero-orbit-reverse {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+@keyframes hero-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -80;
+  }
+}
+.hero-orbit {
+  animation: hero-orbit 32s linear infinite;
+}
+.hero-orbit-reverse {
+  animation: hero-orbit-reverse 46s linear infinite;
+}
+.hero-flow {
+  animation: hero-flow 8s linear infinite;
+}
+.hero-flow-reverse {
+  animation: hero-flow 11s linear infinite reverse;
+}
+.hero-node {
+  animation: hero-orbit 22s linear infinite;
+  transform-origin: 50% 50%;
+}
+.hero-node-reverse {
+  animation: hero-orbit-reverse 28s linear infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes fragment-flow {
+  from {
+    stroke-dashoffset: 0;
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  to {
+    stroke-dashoffset: -48;
+    opacity: 0.18;
+  }
+}
+.fragment-flow {
+  fill: none;
+  stroke: hsl(var(--accent));
+  stroke-width: 1.5;
+  stroke-dasharray: 3 9;
+  animation: fragment-flow 6s linear infinite;
+}
+.fragment-flow-delay {
+  animation-delay: -2.5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fragment-flow,
+  .fragment-flow-delay {
+    animation: none;
+    opacity: 0.35;
+  }
+}
+@keyframes capital-flow {
+  from {
+    stroke-dashoffset: 0;
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  to {
+    stroke-dashoffset: -72;
+    opacity: 0.18;
+  }
+}
+.capital-flow {
+  stroke-width: 2;
+  stroke-dasharray: 3 9;
+  animation: capital-flow 5s linear infinite;
+}
+.capital-flow-delay {
+  animation-delay: -2.2s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .capital-flow,
+  .capital-flow-delay {
+    animation: none;
+    opacity: 0.35;
+  }
+}
