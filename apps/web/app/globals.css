@@ -33,4 +33,15 @@ button, a, input, select, textarea, [tabindex]:not([tabindex='-1']) { outline: n
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+  .hero-orbit, .hero-orbit-reverse, .hero-flow, .hero-flow-reverse, .hero-node, .hero-node-reverse { animation: none; }
 }
+
+@keyframes hero-orbit { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes hero-orbit-reverse { from { transform: translate(-50%, -50%) rotate(360deg); } to { transform: translate(-50%, -50%) rotate(0deg); } }
+@keyframes hero-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -80; } }
+.hero-orbit { animation: hero-orbit 32s linear infinite; }
+.hero-orbit-reverse { animation: hero-orbit-reverse 46s linear infinite; }
+.hero-flow { animation: hero-flow 8s linear infinite; }
+.hero-flow-reverse { animation: hero-flow 11s linear infinite reverse; }
+.hero-node { animation: hero-orbit 22s linear infinite; transform-origin: 50% 50%; }
+.hero-node-reverse { animation: hero-orbit-reverse 28s linear infinite; transform-origin: 50% 50%; }
