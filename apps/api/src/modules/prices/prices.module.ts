@@ -14,5 +14,6 @@ import { ConfiguredStablecoinPriceProvider } from './stablecoin-provider';
     },
     PricesService,
   ],
+  exports: [PricesService],
 })
 export class PricesModule {}
