@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   AccountBalance,
+  AuthChallenge,
   AlertRule,
   Anchor,
   AnchorAsset,
@@ -46,6 +47,7 @@ import {
         url: config.getOrThrow<string>('app.databaseUrl'),
         entities: [
           AccountBalance,
+          AuthChallenge,
           AlertRule,
           Anchor,
           AnchorAsset,

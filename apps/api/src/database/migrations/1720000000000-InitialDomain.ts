@@ -15,6 +15,12 @@ export class InitialDomain1720000000000 implements MigrationInterface {
       `CREATE TABLE IF NOT EXISTS sessions (${common}, user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE, token_hash varchar(255) NOT NULL UNIQUE, expires_at timestamptz NOT NULL, revoked_at timestamptz)`,
     );
     await queryRunner.query(
+      `ALTER TABLE sessions ADD COLUMN IF NOT EXISTS network varchar(32) NOT NULL DEFAULT 'testnet'`,
+    );
+    await queryRunner.query(
+      `CREATE TABLE IF NOT EXISTS auth_challenges (${common}, account_address varchar(128) NOT NULL, network varchar(32) NOT NULL, domain varchar(255) NOT NULL, nonce_hash varchar(128) NOT NULL UNIQUE, nonce varchar(255) NOT NULL, expires_at timestamptz NOT NULL, consumed_at timestamptz)`,
+    );
+    await queryRunner.query(
       `CREATE TABLE IF NOT EXISTS wallet_connections (${common}, user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE, network varchar(32) NOT NULL, wallet_address varchar(128) NOT NULL, provider varchar(64) NOT NULL, last_seen_at timestamptz, UNIQUE(user_id, network, wallet_address))`,
     );
     await queryRunner.query(
@@ -104,6 +110,9 @@ export class InitialDomain1720000000000 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE IF NOT EXISTS indexer_jobs (${common}, provider varchar(64) NOT NULL, job_type varchar(128) NOT NULL, status varchar(32) NOT NULL, run_at timestamptz, attempts integer NOT NULL DEFAULT 0, payload jsonb, last_error text)`,
     );
+    await queryRunner.query(
+      'CREATE INDEX IF NOT EXISTS idx_auth_challenges_account_expiry ON auth_challenges(account_address, network, expires_at)',
+    );
     const indexes = [
       'CREATE INDEX IF NOT EXISTS idx_wallet_connections_address ON wallet_connections(wallet_address)',
       'CREATE INDEX IF NOT EXISTS idx_stellar_accounts_address ON stellar_accounts(account_address)',
@@ -152,6 +161,7 @@ export class InitialDomain1720000000000 implements MigrationInterface {
       'asset_issuers',
       'stellar_accounts',
       'wallet_connections',
+      'auth_challenges',
       'sessions',
       'users',
     ])
