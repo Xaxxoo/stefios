@@ -8,6 +8,7 @@ export const configuration = registerAs('app', () => ({
   redisUrl: process.env.REDIS_URL,
   stellarNetwork: process.env.STELLAR_NETWORK ?? 'testnet',
   stellarRpcUrl: process.env.STELLAR_RPC_URL,
+  stablecoinPricesJson: process.env.STABLECOIN_PRICES_JSON,
   authChallengeTtlSeconds: Number(process.env.AUTH_CHALLENGE_TTL_SECONDS ?? 300),
   authSessionTtlSeconds: Number(process.env.AUTH_SESSION_TTL_SECONDS ?? 86400),
 }));
