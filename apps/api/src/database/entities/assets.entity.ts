@@ -44,9 +44,27 @@ export class AssetMetadata extends ApplicationEntity {
 export class RwaMetadata extends ApplicationEntity {
   @Column('uuid') assetId!: string;
   @ManyToOne(() => Asset, { onDelete: 'CASCADE' }) @JoinColumn({ name: 'assetId' }) asset!: Asset;
+  @Column({ length: 255, nullable: true }) manager!: string | null;
+  @Column({ length: 255, nullable: true }) productName!: string | null;
   @Column({ length: 255, nullable: true }) issuerName!: string | null;
   @Column({ length: 64, nullable: true }) jurisdiction!: string | null;
   @Column({ length: 255, nullable: true }) instrumentType!: string | null;
+  @Column({ length: 64, nullable: true }) denomination!: string | null;
+  @Column({ length: 128, nullable: true }) underlyingAssetCategory!: string | null;
+  @Column({ ...NUMERIC_COLUMN, nullable: true }) nav!: string | null;
+  @Column({ type: 'timestamptz', nullable: true }) navTimestamp!: Date | null;
+  @Column({ ...NUMERIC_COLUMN, nullable: true }) indicatedYield!: string | null;
+  @Column({ type: 'timestamptz', nullable: true }) yieldTimestamp!: Date | null;
+  @Column({ type: 'timestamptz', nullable: true }) maturity!: Date | null;
+  @Column({ ...NUMERIC_COLUMN, nullable: true }) duration!: string | null;
+  @Column({ type: 'text', nullable: true }) transferRestrictions!: string | null;
+  @Column({ type: 'text', nullable: true }) eligibilityRequirements!: string | null;
+  @Column({ type: 'text', nullable: true }) officialUrl!: string | null;
+  @Column({ type: 'text', nullable: true }) disclosuresUrl!: string | null;
+  @Column({ length: 32, nullable: true }) source!: string | null;
+  @Column({ type: 'timestamptz', nullable: true }) freshness!: Date | null;
+  @Column({ length: 32, nullable: true }) verification!:
+    'verified' | 'unverified' | 'unknown' | null;
   @Column(JSONB_COLUMN) providerMetadata!: Record<string, unknown> | null;
 }
 

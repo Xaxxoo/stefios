@@ -11,6 +11,7 @@ import { UsersModule } from './modules/users/users.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
 import { StellarModule } from './modules/stellar/stellar.module';
 import { AssetsModule } from './modules/assets/assets.module';
+import { RwaModule } from './modules/rwa/rwa.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
 import { PricesModule } from './modules/prices/prices.module';
 import { ProtocolsModule } from './modules/protocols/protocols.module';
@@ -35,6 +36,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     WalletsModule,
     StellarModule,
     AssetsModule,
+    RwaModule,
     PortfolioModule,
     PricesModule,
     ProtocolsModule,
