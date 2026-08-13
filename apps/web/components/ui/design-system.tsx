@@ -1,47 +1,598 @@
 'use client';
 
-import { forwardRef, useEffect, useRef, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useEffect,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from 'react';
 import { cn } from '../../lib/utils';
 
 type Tone = 'neutral' | 'positive' | 'warning' | 'negative' | 'info' | 'accent';
-const toneClass: Record<Tone, string> = { neutral: 'text-[hsl(var(--muted))] bg-white/[0.04] border-white/[0.09]', positive: 'text-[hsl(var(--positive))] bg-[hsl(var(--positive))]/10 border-[hsl(var(--positive))]/20', warning: 'text-[hsl(var(--warning))] bg-[hsl(var(--warning))]/10 border-[hsl(var(--warning))]/20', negative: 'text-[hsl(var(--negative))] bg-[hsl(var(--negative))]/10 border-[hsl(var(--negative))]/20', info: 'text-[hsl(var(--info))] bg-[hsl(var(--info))]/10 border-[hsl(var(--info))]/20', accent: 'text-[hsl(var(--accent))] bg-[hsl(var(--accent))]/10 border-[hsl(var(--accent))]/20' };
+const toneClass: Record<Tone, string> = {
+  neutral: 'text-[hsl(var(--muted))] bg-white/[0.04] border-white/[0.09]',
+  positive:
+    'text-[hsl(var(--positive))] bg-[hsl(var(--positive))]/10 border-[hsl(var(--positive))]/20',
+  warning: 'text-[hsl(var(--warning))] bg-[hsl(var(--warning))]/10 border-[hsl(var(--warning))]/20',
+  negative:
+    'text-[hsl(var(--negative))] bg-[hsl(var(--negative))]/10 border-[hsl(var(--negative))]/20',
+  info: 'text-[hsl(var(--info))] bg-[hsl(var(--info))]/10 border-[hsl(var(--info))]/20',
+  accent: 'text-[hsl(var(--accent))] bg-[hsl(var(--accent))]/10 border-[hsl(var(--accent))]/20',
+};
 
-export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost' | 'danger'; size?: 'sm' | 'md' | 'lg' }>(({ className, variant = 'secondary', size = 'md', ...props }, ref) => <button ref={ref} className={cn('inline-flex items-center justify-center gap-2 rounded-md border font-medium transition-colors disabled:pointer-events-none disabled:opacity-45', variant === 'primary' && 'border-transparent bg-[hsl(var(--accent))] text-[hsl(var(--background))] hover:brightness-110', variant === 'secondary' && 'border-white/10 bg-white/[0.06] text-foreground hover:bg-white/[0.1]', variant === 'ghost' && 'border-transparent text-[hsl(var(--muted))] hover:bg-white/[0.06] hover:text-foreground', variant === 'danger' && 'border-[hsl(var(--negative))]/30 bg-[hsl(var(--negative))]/10 text-[hsl(var(--negative))] hover:bg-[hsl(var(--negative))]/20', size === 'sm' && 'h-8 px-3 text-xs', size === 'lg' && 'h-11 px-5', size === 'md' && 'h-9 px-4 text-sm', className)} {...props} />);
+export const Button = forwardRef<
+  HTMLButtonElement,
+  ButtonHTMLAttributes<HTMLButtonElement> & {
+    variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+    size?: 'sm' | 'md' | 'lg';
+  }
+>(({ className, variant = 'secondary', size = 'md', ...props }, ref) => (
+  <button
+    ref={ref}
+    className={cn(
+      'inline-flex items-center justify-center gap-2 rounded-md border font-medium transition-colors disabled:pointer-events-none disabled:opacity-45',
+      variant === 'primary' &&
+        'border-transparent bg-[hsl(var(--accent))] text-[hsl(var(--background))] hover:brightness-110',
+      variant === 'secondary' &&
+        'border-white/10 bg-white/[0.06] text-foreground hover:bg-white/[0.1]',
+      variant === 'ghost' &&
+        'border-transparent text-[hsl(var(--muted))] hover:bg-white/[0.06] hover:text-foreground',
+      variant === 'danger' &&
+        'border-[hsl(var(--negative))]/30 bg-[hsl(var(--negative))]/10 text-[hsl(var(--negative))] hover:bg-[hsl(var(--negative))]/20',
+      size === 'sm' && 'h-8 px-3 text-xs',
+      size === 'lg' && 'h-11 px-5',
+      size === 'md' && 'h-9 px-4 text-sm',
+      className,
+    )}
+    {...props}
+  />
+));
 Button.displayName = 'Button';
 
-export function IconButton({ label, children, className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) { return <button aria-label={label} className={cn('inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-[hsl(var(--muted))] transition-colors hover:bg-white/[0.09] hover:text-foreground', className)} {...props}>{children}</button>; }
-export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) { return <div className={cn('rounded-xl border border-white/[0.08] bg-[hsl(var(--surface-1))] shadow-[0_12px_40px_rgba(0,0,0,.18)]', className)} {...props} />; }
-export function Panel({ className, ...props }: HTMLAttributes<HTMLDivElement>) { return <section className={cn('rounded-lg border border-white/[0.08] bg-[hsl(var(--surface-2))]', className)} {...props} />; }
-export function GlassPanel({ className, ...props }: HTMLAttributes<HTMLDivElement>) { return <div className={cn('rounded-xl border border-white/[0.12] bg-white/[0.045] shadow-[0_16px_60px_rgba(0,0,0,.22)] backdrop-blur-xl', className)} {...props} />; }
-export function MetricCard({ label, value, change, tone = 'neutral', className }: { label: string; value: ReactNode; change?: ReactNode; tone?: Tone; className?: string }) { return <Card className={cn('p-4 sm:p-5', className)}><p className="text-xs font-medium uppercase tracking-[0.14em] text-[hsl(var(--muted))]">{label}</p><p className="mt-3 text-2xl font-semibold tracking-tight tabular-nums">{value}</p>{change ? <p className={cn('mt-2 text-xs', tone === 'neutral' ? 'text-[hsl(var(--muted))]' : toneClass[tone].split(' ')[0])}>{change}</p> : null}</Card>; }
+export function IconButton({
+  label,
+  children,
+  className,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & { label: string }) {
+  return (
+    <button
+      aria-label={label}
+      className={cn(
+        'inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-[hsl(var(--muted))] transition-colors hover:bg-white/[0.09] hover:text-foreground',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        'rounded-xl border border-white/[0.08] bg-[hsl(var(--surface-1))] shadow-[0_12px_40px_rgba(0,0,0,.18)]',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+export function Panel({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <section
+      className={cn('rounded-lg border border-white/[0.08] bg-[hsl(var(--surface-2))]', className)}
+      {...props}
+    />
+  );
+}
+export function GlassPanel({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        'rounded-xl border border-white/[0.12] bg-white/[0.045] shadow-[0_16px_60px_rgba(0,0,0,.22)] backdrop-blur-xl',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+export function MetricCard({
+  label,
+  value,
+  change,
+  tone = 'neutral',
+  className,
+}: {
+  label: string;
+  value: ReactNode;
+  change?: ReactNode;
+  tone?: Tone;
+  className?: string;
+}) {
+  return (
+    <Card className={cn('p-4 sm:p-5', className)}>
+      <p className="text-xs font-medium uppercase tracking-[0.14em] text-[hsl(var(--muted))]">
+        {label}
+      </p>
+      <p className="mt-3 text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
+      {change ? (
+        <p
+          className={cn(
+            'mt-2 text-xs',
+            tone === 'neutral' ? 'text-[hsl(var(--muted))]' : toneClass[tone].split(' ')[0],
+          )}
+        >
+          {change}
+        </p>
+      ) : null}
+    </Card>
+  );
+}
 
-export function AssetAvatar({ symbol, color = 'bg-[hsl(var(--accent-muted))]', size = 'md' }: { symbol: string; color?: string; size?: 'sm' | 'md' | 'lg' }) { return <span className={cn('inline-flex shrink-0 items-center justify-center rounded-full font-semibold text-[hsl(var(--background))]', color, size === 'sm' && 'h-6 w-6 text-[9px]', size === 'lg' && 'h-11 w-11 text-sm', size === 'md' && 'h-8 w-8 text-[11px]')} aria-hidden="true">{symbol.slice(0, 3).toUpperCase()}</span>; }
-export function AssetPair({ base, quote }: { base: string; quote: string }) { return <span className="flex items-center"><AssetAvatar symbol={base} size="sm" /><AssetAvatar symbol={quote} size="sm" color="bg-[hsl(var(--surface-3))]" /><span className="ml-2 text-sm font-medium">{base}/{quote}</span></span>; }
-export function Amount({ value, asset, className }: { value: string; asset?: string; className?: string }) { return <span className={cn('tabular-nums', className)}>{value}{asset ? <span className="ml-1 text-[hsl(var(--muted))]">{asset}</span> : null}</span>; }
-export function CurrencyAmount({ value, currency = 'USD', className }: { value: string; currency?: string; className?: string }) { return <Amount value={value} asset={currency} className={className} />; }
-export function Percentage({ value, className }: { value: string; className?: string }) { return <span className={cn('tabular-nums', className)}>{value}%</span>; }
-export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNode; tone?: Tone }) { return <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium', toneClass[tone])}><span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" />{children}</span>; }
-export function RiskBadge({ level }: { level: 'low' | 'medium' | 'high' | 'critical' }) { return <StatusBadge tone={level === 'low' ? 'positive' : level === 'medium' ? 'warning' : 'negative'}>{level}</StatusBadge>; }
-export function ProtocolBadge({ name }: { name: string }) { return <StatusBadge tone="accent">{name}</StatusBadge>; }
-export function NetworkBadge({ network }: { network: 'mainnet' | 'testnet' }) { return <StatusBadge tone={network === 'mainnet' ? 'positive' : 'warning'}>{network}</StatusBadge>; }
+export function AssetAvatar({
+  symbol,
+  color = 'bg-[hsl(var(--accent-muted))]',
+  size = 'md',
+}: {
+  symbol: string;
+  color?: string;
+  size?: 'sm' | 'md' | 'lg';
+}) {
+  return (
+    <span
+      className={cn(
+        'inline-flex shrink-0 items-center justify-center rounded-full font-semibold text-[hsl(var(--background))]',
+        color,
+        size === 'sm' && 'h-6 w-6 text-[9px]',
+        size === 'lg' && 'h-11 w-11 text-sm',
+        size === 'md' && 'h-8 w-8 text-[11px]',
+      )}
+      aria-hidden="true"
+    >
+      {symbol.slice(0, 3).toUpperCase()}
+    </span>
+  );
+}
+export function AssetPair({ base, quote }: { base: string; quote: string }) {
+  return (
+    <span className="flex items-center">
+      <AssetAvatar symbol={base} size="sm" />
+      <AssetAvatar symbol={quote} size="sm" color="bg-[hsl(var(--surface-3))]" />
+      <span className="ml-2 text-sm font-medium">
+        {base}/{quote}
+      </span>
+    </span>
+  );
+}
+export function Amount({
+  value,
+  asset,
+  className,
+}: {
+  value: string;
+  asset?: string;
+  className?: string;
+}) {
+  return (
+    <span className={cn('tabular-nums', className)}>
+      {value}
+      {asset ? <span className="ml-1 text-[hsl(var(--muted))]">{asset}</span> : null}
+    </span>
+  );
+}
+export function CurrencyAmount({
+  value,
+  currency = 'USD',
+  className,
+}: {
+  value: string;
+  currency?: string;
+  className?: string;
+}) {
+  return <Amount value={value} asset={currency} className={className} />;
+}
+export function Percentage({ value, className }: { value: string; className?: string }) {
+  return <span className={cn('tabular-nums', className)}>{value}%</span>;
+}
+export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNode; tone?: Tone }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium',
+        toneClass[tone],
+      )}
+    >
+      <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" />
+      {children}
+    </span>
+  );
+}
+export function RiskBadge({ level }: { level: 'low' | 'medium' | 'high' | 'critical' }) {
+  return (
+    <StatusBadge tone={level === 'low' ? 'positive' : level === 'medium' ? 'warning' : 'negative'}>
+      {level}
+    </StatusBadge>
+  );
+}
+export function ProtocolBadge({ name }: { name: string }) {
+  return <StatusBadge tone="accent">{name}</StatusBadge>;
+}
+export function NetworkBadge({ network }: { network: 'mainnet' | 'testnet' }) {
+  return <StatusBadge tone={network === 'mainnet' ? 'positive' : 'warning'}>{network}</StatusBadge>;
+}
 
-export function DataTable<T>({ columns, rows, getRowKey }: { columns: readonly { key: string; label: string; render: (row: T) => ReactNode; align?: 'left' | 'right' }[]; rows: readonly T[]; getRowKey: (row: T, index: number) => string }) { return <div className="overflow-x-auto"><table className="w-full min-w-[520px] text-left text-sm"><thead><tr className="border-b border-white/[0.08] text-[10px] uppercase tracking-[0.14em] text-[hsl(var(--muted))]">{columns.map((column) => <th key={column.key} className={cn('px-4 py-3 font-medium', column.align === 'right' && 'text-right')}>{column.label}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={getRowKey(row, index)} className="border-b border-white/[0.05] transition-colors last:border-0 hover:bg-white/[0.025]">{columns.map((column) => <td key={column.key} className={cn('px-4 py-3', column.align === 'right' && 'text-right')}>{column.render(row)}</td>)}</tr>)}</tbody></table></div>; }
-export function DataTableToolbar({ children }: { children: ReactNode }) { return <div className="flex flex-col gap-3 border-b border-white/[0.08] p-3 sm:flex-row sm:items-center sm:justify-between">{children}</div>; }
-export const SearchInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(({ className, ...props }, ref) => <div className="relative"><span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[hsl(var(--muted))]">⌕</span><input ref={ref} className={cn('h-9 w-full rounded-md border border-white/10 bg-white/[0.04] pl-8 pr-3 text-sm placeholder:text-[hsl(var(--muted))] focus:border-[hsl(var(--accent))]', className)} {...props} /></div>);
+export function DataTable<T>({
+  columns,
+  rows,
+  getRowKey,
+}: {
+  columns: readonly {
+    key: string;
+    label: string;
+    render: (row: T) => ReactNode;
+    align?: 'left' | 'right';
+  }[];
+  rows: readonly T[];
+  getRowKey: (row: T, index: number) => string;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[520px] text-left text-sm">
+        <thead>
+          <tr className="border-b border-white/[0.08] text-[10px] uppercase tracking-[0.14em] text-[hsl(var(--muted))]">
+            {columns.map((column) => (
+              <th
+                key={column.key}
+                className={cn('px-4 py-3 font-medium', column.align === 'right' && 'text-right')}
+              >
+                {column.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr
+              key={getRowKey(row, index)}
+              className="border-b border-white/[0.05] transition-colors last:border-0 hover:bg-white/[0.025]"
+            >
+              {columns.map((column) => (
+                <td
+                  key={column.key}
+                  className={cn('px-4 py-3', column.align === 'right' && 'text-right')}
+                >
+                  {column.render(row)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+export function DataTableToolbar({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3 border-b border-white/[0.08] p-3 sm:flex-row sm:items-center sm:justify-between">
+      {children}
+    </div>
+  );
+}
+export const SearchInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  ({ className, ...props }, ref) => (
+    <div className="relative">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[hsl(var(--muted))]">
+        ⌕
+      </span>
+      <input
+        ref={ref}
+        className={cn(
+          'h-9 w-full rounded-md border border-white/10 bg-white/[0.04] pl-8 pr-3 text-sm placeholder:text-[hsl(var(--muted))] focus:border-[hsl(var(--accent))]',
+          className,
+        )}
+        {...props}
+      />
+    </div>
+  ),
+);
 SearchInput.displayName = 'SearchInput';
-export function FilterMenu({ label = 'Filter', children }: { label?: string; children: ReactNode }) { return <details className="relative"><summary className="cursor-pointer list-none rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-[hsl(var(--muted))] hover:text-foreground">{label}</summary><div className="absolute right-0 z-20 mt-2 min-w-48 rounded-lg border border-white/10 bg-[hsl(var(--surface-3))] p-3 shadow-2xl">{children}</div></details>; }
-export function CommandPalette({ open, onClose, children }: { open: boolean; onClose: () => void; children: ReactNode }) { useEffect(() => { const handler = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); }; if (open) { document.addEventListener('keydown', handler); return () => document.removeEventListener('keydown', handler); } }, [onClose, open]); if (!open) return null; return <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[12vh] backdrop-blur-sm" onMouseDown={onClose}><div className="w-full max-w-xl" onMouseDown={(event) => event.stopPropagation()}>{children}</div></div>; }
-export function Dropdown({ label, children }: { label: string; children: ReactNode }) { return <FilterMenu label={label}>{children}</FilterMenu>; }
-export function Modal({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: ReactNode }) { return <CommandPalette open={open} onClose={onClose}><Card role="dialog" aria-label={title} className="p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">{title}</h2><IconButton label="Close" onClick={onClose}>×</IconButton></div><div className="mt-5">{children}</div></Card></CommandPalette>; }
-export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) { return <CommandPalette open={open} onClose={onClose}><div className="ml-auto max-w-md rounded-xl border border-white/10 bg-[hsl(var(--surface-2))] p-5 shadow-2xl"><div className="flex justify-between"><h2 className="font-semibold">{title}</h2><IconButton label="Close" onClick={onClose}>×</IconButton></div><div className="mt-5">{children}</div></div></CommandPalette>; }
+export function FilterMenu({
+  label = 'Filter',
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="relative">
+      <summary className="cursor-pointer list-none rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-[hsl(var(--muted))] hover:text-foreground">
+        {label}
+      </summary>
+      <div className="absolute right-0 z-20 mt-2 min-w-48 rounded-lg border border-white/10 bg-[hsl(var(--surface-3))] p-3 shadow-2xl">
+        {children}
+      </div>
+    </details>
+  );
+}
+export function CommandPalette({
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  useEffect(() => {
+    const handler = (event: { key: string }) => {
+      if (event.key === 'Escape') onClose();
+    };
+    const browser = globalThis as typeof globalThis & {
+      document?: {
+        addEventListener: (type: string, listener: (event: { key: string }) => void) => void;
+        removeEventListener: (type: string, listener: (event: { key: string }) => void) => void;
+      };
+    };
+    if (open) {
+      browser.document?.addEventListener('keydown', handler);
+      return () => browser.document?.removeEventListener('keydown', handler);
+    }
+  }, [onClose, open]);
+  if (!open) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-[12vh] backdrop-blur-sm"
+      onMouseDown={onClose}
+    >
+      <div className="w-full max-w-xl" onMouseDown={(event) => event.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+}
+export function Dropdown({ label, children }: { label: string; children: ReactNode }) {
+  return <FilterMenu label={label}>{children}</FilterMenu>;
+}
+export function Modal({
+  open,
+  title,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <CommandPalette open={open} onClose={onClose}>
+      <Card role="dialog" aria-label={title} className="p-5">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">{title}</h2>
+          <IconButton label="Close" onClick={onClose}>
+            ×
+          </IconButton>
+        </div>
+        <div className="mt-5">{children}</div>
+      </Card>
+    </CommandPalette>
+  );
+}
+export function Sheet({
+  open,
+  onClose,
+  title,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <CommandPalette open={open} onClose={onClose}>
+      <div className="ml-auto max-w-md rounded-xl border border-white/10 bg-[hsl(var(--surface-2))] p-5 shadow-2xl">
+        <div className="flex justify-between">
+          <h2 className="font-semibold">{title}</h2>
+          <IconButton label="Close" onClick={onClose}>
+            ×
+          </IconButton>
+        </div>
+        <div className="mt-5">{children}</div>
+      </div>
+    </CommandPalette>
+  );
+}
 export const Drawer = Sheet;
-export function Tabs({ items, value, onChange }: { items: readonly { value: string; label: string }[]; value: string; onChange: (value: string) => void }) { return <div role="tablist" className="flex gap-1 border-b border-white/[0.08]">{items.map((item) => <button key={item.value} role="tab" aria-selected={value === item.value} onClick={() => onChange(item.value)} className={cn('border-b-2 px-3 py-2 text-sm transition-colors', value === item.value ? 'border-[hsl(var(--accent))] text-foreground' : 'border-transparent text-[hsl(var(--muted))] hover:text-foreground')}>{item.label}</button>)}</div>; }
-export function Tooltip({ label, children }: { label: string; children: ReactNode }) { return <span title={label} className="inline-flex">{children}</span>; }
-export function Popover({ label, children }: { label: string; children: ReactNode }) { return <details className="relative inline-block"><summary className="cursor-pointer list-none">{label}</summary><div className="absolute z-20 mt-2 min-w-48 rounded-lg border border-white/10 bg-[hsl(var(--surface-3))] p-3 text-sm shadow-xl">{children}</div></details>; }
-export function EmptyState({ title, description, action }: { title: string; description?: string; action?: ReactNode }) { return <div className="rounded-xl border border-dashed border-white/15 p-10 text-center"><div className="mx-auto mb-3 h-10 w-10 rounded-full border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10" /><h2 className="font-medium">{title}</h2>{description && <p className="mx-auto mt-2 max-w-sm text-sm text-[hsl(var(--muted))]">{description}</p>}{action && <div className="mt-5">{action}</div>}</div>; }
-export function ErrorState({ title = 'Unable to load data', description = 'Try again or check your connection.', action }: { title?: string; description?: string; action?: ReactNode }) { return <div role="alert" className="rounded-xl border border-[hsl(var(--negative))]/25 bg-[hsl(var(--negative))]/[0.06] p-6"><h2 className="font-medium text-[hsl(var(--negative))]">{title}</h2><p className="mt-1 text-sm text-[hsl(var(--muted))]">{description}</p>{action && <div className="mt-4">{action}</div>}</div>; }
-export function Skeleton({ className }: { className?: string }) { return <div aria-hidden="true" className={cn('animate-pulse rounded-md bg-white/[0.08]', className)} />; }
-export function PageHeader({ eyebrow, title, description, actions }: { eyebrow?: string; title: string; description?: string; actions?: ReactNode }) { return <header className="flex flex-col gap-5 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-end sm:justify-between"><div>{eyebrow && <p className="text-xs uppercase tracking-[0.16em] text-[hsl(var(--accent))]">{eyebrow}</p>}<h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>{description && <p className="mt-2 max-w-2xl text-sm text-[hsl(var(--muted))]">{description}</p>}</div>{actions && <div className="flex shrink-0 gap-2">{actions}</div>}</header>; }
-export function SectionHeader({ title, description, action }: { title: string; description?: string; action?: ReactNode }) { return <div className="mb-4 flex items-end justify-between gap-4"><div><h2 className="font-semibold">{title}</h2>{description && <p className="mt-1 text-sm text-[hsl(var(--muted))]">{description}</p>}</div>{action}</div>; }
-export function Sparkline({ values, tone = 'accent' }: { values: readonly number[]; tone?: Tone }) { const max = Math.max(...values); const min = Math.min(...values); const points = values.map((value, index) => `${(index / Math.max(values.length - 1, 1)) * 100},${100 - ((value - min) / Math.max(max - min, 1)) * 100}`).join(' '); const color = tone === 'neutral' ? 'muted' : tone; return <svg role="img" aria-label="Trend chart" viewBox="0 0 100 100" preserveAspectRatio="none" className="h-10 w-full"><polyline fill="none" stroke={`hsl(var(--${color}))`} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" points={points} vectorEffect="non-scaling-stroke" /></svg>; }
-export function ChartContainer({ title, children, legend }: { title?: string; children: ReactNode; legend?: ReactNode }) { return <Card className="p-4 sm:p-5"><div className="mb-5 flex items-center justify-between"><h3 className="text-sm font-medium">{title}</h3>{legend}</div><div className="min-h-40">{children}</div></Card>; }
+export function Tabs({
+  items,
+  value,
+  onChange,
+}: {
+  items: readonly { value: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div role="tablist" className="flex gap-1 border-b border-white/[0.08]">
+      {items.map((item) => (
+        <button
+          key={item.value}
+          role="tab"
+          aria-selected={value === item.value}
+          onClick={() => onChange(item.value)}
+          className={cn(
+            'border-b-2 px-3 py-2 text-sm transition-colors',
+            value === item.value
+              ? 'border-[hsl(var(--accent))] text-foreground'
+              : 'border-transparent text-[hsl(var(--muted))] hover:text-foreground',
+          )}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+export function Tooltip({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <span title={label} className="inline-flex">
+      {children}
+    </span>
+  );
+}
+export function Popover({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <details className="relative inline-block">
+      <summary className="cursor-pointer list-none">{label}</summary>
+      <div className="absolute z-20 mt-2 min-w-48 rounded-lg border border-white/10 bg-[hsl(var(--surface-3))] p-3 text-sm shadow-xl">
+        {children}
+      </div>
+    </details>
+  );
+}
+export function EmptyState({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-dashed border-white/15 p-10 text-center">
+      <div className="mx-auto mb-3 h-10 w-10 rounded-full border border-[hsl(var(--accent))]/30 bg-[hsl(var(--accent))]/10" />
+      <h2 className="font-medium">{title}</h2>
+      {description && (
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[hsl(var(--muted))]">{description}</p>
+      )}
+      {action && <div className="mt-5">{action}</div>}
+    </div>
+  );
+}
+export function ErrorState({
+  title = 'Unable to load data',
+  description = 'Try again or check your connection.',
+  action,
+}: {
+  title?: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div
+      role="alert"
+      className="rounded-xl border border-[hsl(var(--negative))]/25 bg-[hsl(var(--negative))]/[0.06] p-6"
+    >
+      <h2 className="font-medium text-[hsl(var(--negative))]">{title}</h2>
+      <p className="mt-1 text-sm text-[hsl(var(--muted))]">{description}</p>
+      {action && <div className="mt-4">{action}</div>}
+    </div>
+  );
+}
+export function Skeleton({ className }: { className?: string }) {
+  return (
+    <div aria-hidden="true" className={cn('animate-pulse rounded-md bg-white/[0.08]', className)} />
+  );
+}
+export function PageHeader({
+  eyebrow,
+  title,
+  description,
+  actions,
+}: {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+}) {
+  return (
+    <header className="flex flex-col gap-5 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        {eyebrow && (
+          <p className="text-xs uppercase tracking-[0.16em] text-[hsl(var(--accent))]">{eyebrow}</p>
+        )}
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+        {description && (
+          <p className="mt-2 max-w-2xl text-sm text-[hsl(var(--muted))]">{description}</p>
+        )}
+      </div>
+      {actions && <div className="flex shrink-0 gap-2">{actions}</div>}
+    </header>
+  );
+}
+export function SectionHeader({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="mb-4 flex items-end justify-between gap-4">
+      <div>
+        <h2 className="font-semibold">{title}</h2>
+        {description && <p className="mt-1 text-sm text-[hsl(var(--muted))]">{description}</p>}
+      </div>
+      {action}
+    </div>
+  );
+}
+export function Sparkline({ values, tone = 'accent' }: { values: readonly number[]; tone?: Tone }) {
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const points = values
+    .map(
+      (value, index) =>
+        `${(index / Math.max(values.length - 1, 1)) * 100},${100 - ((value - min) / Math.max(max - min, 1)) * 100}`,
+    )
+    .join(' ');
+  const color = tone === 'neutral' ? 'muted' : tone;
+  return (
+    <svg
+      role="img"
+      aria-label="Trend chart"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      className="h-10 w-full"
+    >
+      <polyline
+        fill="none"
+        stroke={`hsl(var(--${color}))`}
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+export function ChartContainer({
+  title,
+  children,
+  legend,
+}: {
+  title?: string;
+  children: ReactNode;
+  legend?: ReactNode;
+}) {
+  return (
+    <Card className="p-4 sm:p-5">
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-sm font-medium">{title}</h3>
+        {legend}
+      </div>
+      <div className="min-h-40">{children}</div>
+    </Card>
+  );
+}
