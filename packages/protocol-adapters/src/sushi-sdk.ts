@@ -1,5 +1,6 @@
 import type { AssetId, Network } from '@sfo/shared';
 import { BaseProtocolAdapter } from './adapter';
+import type { QuoteRequest } from './quote-source';
 import type {
   ProtocolCapabilities,
   ProtocolMarket,
@@ -46,7 +47,7 @@ export type SushiProvider = {
   getPositions?(network: Network, account: string): Promise<readonly SushiPosition[]>;
   getYield?(network: Network): Promise<readonly ProtocolYieldMetrics[]>;
   getRisk?(network: Network, account: string): Promise<readonly ProtocolRiskMetrics[]>;
-  quote?(request: import('./quote-source').QuoteRequest): Promise<ProtocolQuote>;
+  quote?(request: QuoteRequest): Promise<ProtocolQuote>;
   buildTransaction?(
     operation: 'addLiquidity' | 'removeLiquidity' | 'collectFees' | 'swap',
     request: ProtocolTransactionRequest,
@@ -61,7 +62,7 @@ export class SushiDataUnavailableError extends Error {
 }
 
 export class UnavailableSushiProvider implements SushiProvider {
-  async status(_network: Network): Promise<SushiProviderStatus> {
+  async status(): Promise<SushiProviderStatus> {
     return {
       status: 'unavailable',
       source: SOURCE,
@@ -69,22 +70,19 @@ export class UnavailableSushiProvider implements SushiProvider {
       checkedAt: new Date(),
     };
   }
-  async discoverPools(_network: Network): Promise<readonly SushiPool[]> {
+  async discoverPools(): Promise<readonly SushiPool[]> {
     throw new SushiDataUnavailableError();
   }
-  async getPositions(_network: Network, _account: string): Promise<readonly SushiPosition[]> {
+  async getPositions(): Promise<readonly SushiPosition[]> {
     throw new SushiDataUnavailableError();
   }
-  async getYield(_network: Network): Promise<readonly ProtocolYieldMetrics[]> {
+  async getYield(): Promise<readonly ProtocolYieldMetrics[]> {
     throw new SushiDataUnavailableError();
   }
-  async getRisk(_network: Network, _account: string): Promise<readonly ProtocolRiskMetrics[]> {
+  async getRisk(): Promise<readonly ProtocolRiskMetrics[]> {
     throw new SushiDataUnavailableError();
   }
-  async buildTransaction(
-    _operation: 'addLiquidity' | 'removeLiquidity' | 'collectFees' | 'swap',
-    _request: ProtocolTransactionRequest,
-  ): Promise<SushiPreparedTransaction> {
+  async buildTransaction(): Promise<SushiPreparedTransaction> {
     throw new SushiDataUnavailableError(
       'Sushi actions are disabled until a verified Stellar provider is configured',
     );
@@ -156,7 +154,7 @@ export class SushiSdkAdapter extends BaseProtocolAdapter {
   override buildSwapTransaction(request: ProtocolTransactionRequest) {
     return this.action('swap', request);
   }
-  getQuote(request: import('./quote-source').QuoteRequest) {
+  getQuote(request: QuoteRequest) {
     if (!this.provider.quote)
       return Promise.reject(
         new SushiDataUnavailableError('Sushi quote interface is not configured'),

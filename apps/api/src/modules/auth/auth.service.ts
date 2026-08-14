@@ -40,6 +40,7 @@ export class AuthService {
   }
 
   async createChallenge(dto: CreateChallengeDto) {
+    this.assertTrustedDomain(dto.domain);
     this.checkRateLimit(`challenge:${dto.accountAddress}`);
     const nonce = randomBytes(32).toString('base64url');
     const challenge = this.challenges.create({
@@ -76,6 +77,7 @@ export class AuthService {
       challenge.domain !== dto.domain
     )
       throw new UnauthorizedException('Challenge binding mismatch');
+    this.assertTrustedDomain(dto.domain);
     const message = this.message(challenge.id, challenge.nonce, dto);
     if (!this.verifySignature(dto.accountAddress, message, dto.signature))
       throw new UnauthorizedException('Invalid wallet signature');
@@ -235,6 +237,18 @@ export class AuthService {
     }
     if (current.count >= 10) throw new UnauthorizedException('Too many authentication attempts');
     current.count += 1;
+  }
+  private assertTrustedDomain(domain: string): void {
+    const configured = this.config.get<string>('app.webOrigin');
+    if (!configured) throw new UnauthorizedException('Authentication domain is not configured');
+    try {
+      const expected = new URL(configured);
+      const actual = domain.includes('://') ? new URL(domain) : new URL(`https://${domain}`);
+      if (actual.hostname !== expected.hostname || (actual.port || '') !== (expected.port || ''))
+        throw new Error('mismatch');
+    } catch {
+      throw new UnauthorizedException('Untrusted authentication domain');
+    }
   }
   private verifySignature(accountAddress: string, message: string, signature: string): boolean {
     try {

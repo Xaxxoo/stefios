@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export abstract class ApplicationEntity {

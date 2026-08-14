@@ -6,6 +6,7 @@ import { RedisModule } from './infrastructure/redis.module';
 import { JobsModule } from './infrastructure/jobs.module';
 import { HealthModule } from './health/health.module';
 import { RequestIdMiddleware } from './common/request-id.middleware';
+import { RateLimitMiddleware } from './common/rate-limit.middleware';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { WalletsModule } from './modules/wallets/wallets.module';
@@ -58,6 +59,6 @@ import { InstitutionalModule } from './modules/institutional/institutional.modul
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestIdMiddleware).forRoutes('*');
+    consumer.apply(RequestIdMiddleware, RateLimitMiddleware).forRoutes('*');
   }
 }

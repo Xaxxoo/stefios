@@ -12,7 +12,6 @@ import type { AssetId, Network } from '@sfo/shared';
 import { BaseProtocolAdapter } from './adapter';
 import type {
   ProtocolCapabilities,
-  ProtocolIncentive,
   ProtocolMarket,
   ProtocolMarketMetrics,
   ProtocolPosition,

@@ -6,7 +6,8 @@
     "dev": "tsx --tsconfig tsconfig.json watch src/main.ts",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --tsconfig tsconfig.json --test test/**/*.spec.ts"
+    "test": "TS_NODE_PROJECT=tsconfig.json node --require ts-node/register --test test/*.spec.ts src/modules/*/*.spec.ts",
+    "migration:check": "typeorm-ts-node-commonjs migration:show -d src/database/data-source.ts"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.2",

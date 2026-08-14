@@ -74,7 +74,7 @@ export class TemplarDataUnavailableError extends Error {
 }
 
 export class UnavailableTemplarProvider implements TemplarProvider {
-  async status(_network: Network): Promise<TemplarProviderStatus> {
+  async status(): Promise<TemplarProviderStatus> {
     return {
       status: 'unavailable',
       source: SOURCE,
@@ -83,22 +83,19 @@ export class UnavailableTemplarProvider implements TemplarProvider {
       checkedAt: new Date(),
     };
   }
-  async discoverMarkets(_network: Network): Promise<readonly ProtocolMarket[]> {
+  async discoverMarkets(): Promise<readonly ProtocolMarket[]> {
     throw new TemplarDataUnavailableError();
   }
-  async getPositions(_network: Network, _account: string): Promise<readonly TemplarPosition[]> {
+  async getPositions(): Promise<readonly TemplarPosition[]> {
     throw new TemplarDataUnavailableError();
   }
-  async getYield(_network: Network): Promise<readonly ProtocolYieldMetrics[]> {
+  async getYield(): Promise<readonly ProtocolYieldMetrics[]> {
     throw new TemplarDataUnavailableError();
   }
-  async getRisk(_network: Network, _account: string): Promise<readonly ProtocolRiskMetrics[]> {
+  async getRisk(): Promise<readonly ProtocolRiskMetrics[]> {
     throw new TemplarDataUnavailableError();
   }
-  async buildTransaction(
-    _operation: 'depositCollateral' | 'withdrawCollateral' | 'borrow' | 'repay',
-    _request: ProtocolTransactionRequest,
-  ): Promise<TemplarPreparedTransaction> {
+  async buildTransaction(): Promise<TemplarPreparedTransaction> {
     throw new TemplarDataUnavailableError(
       'Templar actions are disabled until a verified Stellar-facing lifecycle provider is configured',
     );

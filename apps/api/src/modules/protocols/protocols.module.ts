@@ -12,7 +12,6 @@ import {
 } from '@sfo/protocol-adapters';
 import type { AquariusConfig } from '@sfo/protocol-adapters';
 import type { BlendConfig, BlendSimulationResult } from '@sfo/protocol-adapters';
-import type { Network } from '@sfo/shared';
 import { STELLAR_RPC_PROVIDER } from '../stellar/stellar.module';
 import type { StellarAccountProvider, StellarRpcProvider } from '@sfo/stellar';
 import { ProtocolsController } from './protocols.controller';
@@ -59,12 +58,9 @@ function poolIds(value: string | undefined): readonly string[] {
               : undefined,
         };
         const adapter = new BlendSdkAdapter(blendConfig, {
-          getAccountSequence: async (account: string, _network: Network) =>
+          getAccountSequence: async (account: string) =>
             (await stellar.getAccount(account)).sequence,
-          simulate: async (
-            transactionXdr: string,
-            _network: Network,
-          ): Promise<BlendSimulationResult> => {
+          simulate: async (transactionXdr: string): Promise<BlendSimulationResult> => {
             const result = await stellar.simulateTransaction(transactionXdr);
             const failed = 'error' in result && Boolean(result.error);
             return {
@@ -101,9 +97,9 @@ function poolIds(value: string | undefined): readonly string[] {
         };
         const aquariusData = new AquariusHttpProvider(aquariusConfig);
         const aquarius = new AquariusSdkAdapter(aquariusConfig, aquariusData, {
-          getAccountSequence: async (account: string, _network: Network) =>
+          getAccountSequence: async (account: string) =>
             (await stellar.getAccount(account)).sequence,
-          simulate: async (transactionXdr: string, _network: Network) => {
+          simulate: async (transactionXdr: string) => {
             const result = await stellar.simulateTransaction(transactionXdr);
             const failed = 'error' in result && Boolean(result.error);
             return {

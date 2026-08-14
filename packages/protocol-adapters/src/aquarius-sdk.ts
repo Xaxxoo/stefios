@@ -206,10 +206,7 @@ export class AquariusSdkAdapter extends BaseProtocolAdapter {
         : [],
     );
   }
-  override async getRiskMetrics(
-    _network: Network,
-    _account?: string,
-  ): Promise<readonly ProtocolRiskMetrics[]> {
+  override async getRiskMetrics(): Promise<readonly ProtocolRiskMetrics[]> {
     return [];
   }
   getQuote(request: QuoteRequest): Promise<ProtocolQuote> {

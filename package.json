@@ -9,7 +9,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "typecheck": "pnpm --recursive typecheck"
+    "typecheck": "pnpm --recursive typecheck",
+    "test": "pnpm --filter @sfo/api test && pnpm --filter @sfo/financial-math test && pnpm --filter @sfo/protocol-adapters test && pnpm --filter @sfo/stellar test"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
