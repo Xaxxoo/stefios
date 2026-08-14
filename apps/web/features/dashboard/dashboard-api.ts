@@ -3,8 +3,13 @@ import { api } from '../../lib/api/client';
 export type PortfolioAllocation = {
   asset: string;
   symbol: string | null;
+  quantity: string;
+  category: string;
+  protocol: string | null;
   value: string | null;
   price: string | null;
+  yieldBearing: boolean;
+  apy: string | null;
   source: string | null;
   timestamp: string | null;
   stale: boolean | null;

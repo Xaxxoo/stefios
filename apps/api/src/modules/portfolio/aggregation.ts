@@ -39,8 +39,13 @@ export type PortfolioAggregation = {
   byAsset: readonly {
     asset: string;
     symbol: string | null;
+    quantity: string;
+    category: string;
+    protocol: string | null;
     value: string | null;
     price: string | null;
+    yieldBearing: boolean;
+    apy: string | null;
     source: string | null;
     timestamp: string | null;
     stale: boolean | null;
@@ -116,8 +121,13 @@ export function aggregatePortfolio(
   const byAsset = valuations.map(({ item, value, quote }) => ({
     asset: item.assetId,
     symbol: item.symbol ?? null,
+    quantity: item.quantity,
+    category: item.category ?? 'other',
+    protocol: item.protocol ?? null,
     value: value?.toFixed() ?? null,
     price: quote?.price ?? null,
+    yieldBearing: item.isYieldBearing ?? false,
+    apy: item.apy ?? null,
     source: quote?.source ?? item.valuationSource ?? null,
     timestamp: quote?.timestamp ?? item.valuationTimestamp ?? null,
     stale: quote?.stale ?? item.valuationStale ?? null,
