@@ -1,0 +1,1 @@
+export const PROTOCOL_REGISTRY = Symbol('PROTOCOL_REGISTRY');

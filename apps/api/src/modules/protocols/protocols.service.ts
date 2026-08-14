@@ -10,7 +10,7 @@ import type {
   NormalizedYieldOpportunity,
 } from '@sfo/protocol-adapters';
 import { aggregateDeFi, collectYield } from '@sfo/protocol-adapters';
-import { PROTOCOL_REGISTRY } from './protocols.module';
+import { PROTOCOL_REGISTRY } from './protocols.tokens';
 
 @Injectable()
 export class ProtocolsService {

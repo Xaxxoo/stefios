@@ -130,6 +130,51 @@ export const RiskMetricSchema = z.object({
 });
 export type RiskMetric = z.infer<typeof RiskMetricSchema>;
 
+export const TransactionActionSchema = z.enum([
+  'supply',
+  'withdraw',
+  'borrow',
+  'repay',
+  'depositLiquidity',
+  'withdrawLiquidity',
+  'claim',
+  'swap',
+]);
+export type TransactionAction = z.infer<typeof TransactionActionSchema>;
+export const TransactionIntentSchema = z.object({
+  action: TransactionActionSchema,
+  protocol: z.string().min(1),
+  network: NetworkSchema,
+  inputAssets: z.array(AssetAmountSchema),
+  outputAssets: z.array(AssetAmountSchema),
+  expectedOutputs: z.array(AssetAmountSchema),
+  minimumOutputs: z.array(AssetAmountSchema),
+  fees: z.array(CurrencyAmountSchema),
+  priceImpact: DecimalStringSchema.nullable(),
+  slippage: DecimalStringSchema.nullable(),
+  contractCalls: z.array(
+    z.object({
+      target: z.string().nullable(),
+      method: z.string(),
+      description: z.string(),
+    }),
+  ),
+  expiration: z.coerce.date(),
+  warnings: z.array(z.string()),
+});
+export type TransactionIntent = z.infer<typeof TransactionIntentSchema>;
+export type TransactionLifecycle =
+  | 'intent'
+  | 'constructed'
+  | 'simulated'
+  | 'previewed'
+  | 'approved'
+  | 'signed'
+  | 'submitted'
+  | 'confirmed'
+  | 'failed'
+  | 'expired';
+
 const ActivityBaseSchema = z.object({
   hash: z.string().min(1),
   network: NetworkSchema,

@@ -17,8 +17,7 @@ import { STELLAR_RPC_PROVIDER } from '../stellar/stellar.module';
 import type { StellarAccountProvider, StellarRpcProvider } from '@sfo/stellar';
 import { ProtocolsController } from './protocols.controller';
 import { ProtocolsService } from './protocols.service';
-
-export const PROTOCOL_REGISTRY = Symbol('PROTOCOL_REGISTRY');
+import { PROTOCOL_REGISTRY } from './protocols.tokens';
 
 function poolIds(value: string | undefined): readonly string[] {
   if (!value) return [];
@@ -123,6 +122,6 @@ function poolIds(value: string | undefined): readonly string[] {
     },
     ProtocolsService,
   ],
-  exports: [ProtocolsService],
+  exports: [ProtocolsService, PROTOCOL_REGISTRY],
 })
 export class ProtocolsModule {}
