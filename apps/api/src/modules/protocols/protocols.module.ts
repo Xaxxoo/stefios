@@ -7,6 +7,8 @@ import {
   ProtocolRegistry,
   SushiSdkAdapter,
   UnavailableSushiProvider,
+  TemplarSdkAdapter,
+  UnavailableTemplarProvider,
 } from '@sfo/protocol-adapters';
 import type { AquariusConfig } from '@sfo/protocol-adapters';
 import type { BlendConfig, BlendSimulationResult } from '@sfo/protocol-adapters';
@@ -115,6 +117,7 @@ function poolIds(value: string | undefined): readonly string[] {
           adapter,
           aquarius,
           new SushiSdkAdapter(new UnavailableSushiProvider()),
+          new TemplarSdkAdapter(new UnavailableTemplarProvider()),
         ]);
       },
     },

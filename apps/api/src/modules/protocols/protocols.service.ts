@@ -32,6 +32,13 @@ export class ProtocolsService {
       throw new ServiceUnavailableException('Sushi integration is not configured');
     }
   }
+  private templar() {
+    try {
+      return this.registry.get('templar');
+    } catch {
+      throw new ServiceUnavailableException('Templar integration is not configured');
+    }
+  }
 
   markets(network: 'mainnet' | 'testnet') {
     return this.blend().discoverMarkets(network);
@@ -104,6 +111,34 @@ export class ProtocolsService {
     const builder = builders[operation];
     if (!builder)
       throw new ServiceUnavailableException(`Sushi operation is not supported: ${operation}`);
+    return builder(request);
+  }
+  templarStatus(network: 'mainnet' | 'testnet') {
+    const adapter = this.templar();
+    return 'status' in adapter && typeof adapter.status === 'function'
+      ? adapter.status(network)
+      : { status: 'unavailable', reason: 'Templar status provider unavailable' };
+  }
+  templarMarkets(network: 'mainnet' | 'testnet') {
+    return this.templar().discoverMarkets(network);
+  }
+  templarPositions(network: 'mainnet' | 'testnet', account: string) {
+    return this.templar().getUserPositions(network, account);
+  }
+  templarRisk(network: 'mainnet' | 'testnet', account: string) {
+    return this.templar().getRiskMetrics(network, account);
+  }
+  templarPrepare(operation: string, request: ProtocolTransactionRequest) {
+    const adapter = this.templar();
+    const builders: Record<string, (value: ProtocolTransactionRequest) => Promise<unknown>> = {
+      depositCollateral: adapter.buildSupplyTransaction.bind(adapter),
+      withdrawCollateral: adapter.buildWithdrawTransaction.bind(adapter),
+      borrow: adapter.buildBorrowTransaction.bind(adapter),
+      repay: adapter.buildRepayTransaction.bind(adapter),
+    };
+    const builder = builders[operation];
+    if (!builder)
+      throw new ServiceUnavailableException(`Templar operation is not supported: ${operation}`);
     return builder(request);
   }
   prepare(operation: string, request: ProtocolTransactionRequest) {

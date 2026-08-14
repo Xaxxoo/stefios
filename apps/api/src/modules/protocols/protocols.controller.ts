@@ -118,4 +118,35 @@ export class ProtocolsController {
       decimals: body.decimals ? Number(body.decimals) : undefined,
     } as ProtocolTransactionRequest);
   }
+  @Get('templar/status') templarStatus(
+    @Query('network') network: 'mainnet' | 'testnet' = 'mainnet',
+  ) {
+    return this.protocols.templarStatus(network);
+  }
+  @Get('templar/markets') templarMarkets(
+    @Query('network') network: 'mainnet' | 'testnet' = 'mainnet',
+  ) {
+    return this.protocols.templarMarkets(network);
+  }
+  @Get('templar/positions/:address') templarPositions(
+    @Param('address') address: string,
+    @Query('network') network: 'mainnet' | 'testnet' = 'mainnet',
+  ) {
+    return this.protocols.templarPositions(network, address);
+  }
+  @Get('templar/risk/:address') templarRisk(
+    @Param('address') address: string,
+    @Query('network') network: 'mainnet' | 'testnet' = 'mainnet',
+  ) {
+    return this.protocols.templarRisk(network, address);
+  }
+  @Post('templar/transactions/:operation/prepare') prepareTemplar(
+    @Param('operation') operation: string,
+    @Body() body: PrepareBlendTransactionDto,
+  ) {
+    return this.protocols.templarPrepare(operation, {
+      ...body,
+      decimals: body.decimals ? Number(body.decimals) : undefined,
+    } as ProtocolTransactionRequest);
+  }
 }
