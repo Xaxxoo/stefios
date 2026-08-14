@@ -105,6 +105,38 @@ export type ProtocolYieldMetrics = Omit<YieldOpportunity, 'tvl'> & {
   tvl: CurrencyAmount | null;
   source: string;
 };
+export type NormalizedYieldOpportunity = {
+  asset: AssetId | null;
+  protocol: ProtocolId;
+  baseYield: string | null;
+  rewardYield: string | null;
+  totalEstimatedYield: string | null;
+  methodology: string;
+  timestamp: Date;
+  liquidityConsiderations: string | null;
+  riskCategory: 'low' | 'medium' | 'high' | 'unknown';
+  rwaOrDefi: 'rwa' | 'defi' | 'unknown';
+  source: string;
+  stale: boolean;
+  market: string;
+};
+export type DeFiAggregation = {
+  totalSupplied: string;
+  totalBorrowed: string;
+  totalLiquidity: string;
+  netDeFiValue: string;
+  earnedYield: string | null;
+  claimableRewards: { count: number; value: string | null };
+  protocolAllocation: readonly { protocol: ProtocolId; value: string }[];
+  positionHealth: readonly ProtocolRiskMetrics[];
+  positions: readonly ProtocolPosition[];
+  providers: readonly {
+    protocol: ProtocolId;
+    status: 'available' | 'unavailable';
+    reason?: string;
+  }[];
+  asOf: Date;
+};
 export type ProtocolRiskMetrics = RiskMetric & {
   protocol: ProtocolId;
   marketId: string | null;
