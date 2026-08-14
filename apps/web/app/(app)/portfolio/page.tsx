@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../features/product-routes/product-route';
+import { PortfolioPage } from '../../../features/portfolio/portfolio-page';
 export const metadata: Metadata = {
   title: 'Portfolio',
   description: 'Normalized Stellar portfolio view.',
 };
-export default function PortfolioPage() {
-  return <ProductRoute kind="portfolio" />;
+export default function PortfolioRoute() {
+  return <PortfolioPage />;
 }
