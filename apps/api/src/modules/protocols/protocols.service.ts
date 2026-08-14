@@ -1,9 +1,14 @@
 import { Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import type {
+  DeFiAggregation,
   ProtocolRegistry,
   ProtocolTransactionRequest,
   QuoteRequest,
+  ProtocolPosition,
+  ProtocolRiskMetrics,
+  NormalizedYieldOpportunity,
 } from '@sfo/protocol-adapters';
+import { aggregateDeFi, collectYield } from '@sfo/protocol-adapters';
 import { PROTOCOL_REGISTRY } from './protocols.module';
 
 @Injectable()
@@ -154,5 +159,67 @@ export class ProtocolsService {
     if (!builder)
       throw new ServiceUnavailableException(`Blend operation is not supported: ${operation}`);
     return builder(request);
+  }
+  async defi(network: 'mainnet' | 'testnet', account: string): Promise<DeFiAggregation> {
+    const adapters = this.registry.list();
+    const results = await Promise.all(
+      adapters.map(async (adapter) => {
+        try {
+          const [positions, risk] = await Promise.all([
+            adapter.getUserPositions(network, account),
+            adapter.getRiskMetrics(network, account),
+          ]);
+          return { protocol: adapter.id, positions, risk };
+        } catch (error) {
+          return {
+            protocol: adapter.id,
+            error: error instanceof Error ? error.message : 'Provider unavailable',
+            positions: [] as readonly ProtocolPosition[],
+            risk: [] as readonly ProtocolRiskMetrics[],
+          };
+        }
+      }),
+    );
+    return aggregateDeFi(results);
+  }
+  async yieldOpportunities(
+    network: 'mainnet' | 'testnet',
+    filters: {
+      protocol?: string;
+      asset?: string;
+      rwaOrDefi?: string;
+      risk?: string;
+      liquidity?: string;
+      yield?: string;
+    } = {},
+  ): Promise<readonly NormalizedYieldOpportunity[]> {
+    let opportunities = await collectYield(this.registry.list(), network);
+    if (filters.protocol)
+      opportunities = opportunities.filter((item) => item.protocol === filters.protocol);
+    if (filters.asset)
+      opportunities = opportunities.filter(
+        (item) =>
+          item.asset &&
+          JSON.stringify(item.asset).toLowerCase().includes(filters.asset!.toLowerCase()),
+      );
+    if (filters.rwaOrDefi)
+      opportunities = opportunities.filter((item) => item.rwaOrDefi === filters.rwaOrDefi);
+    if (filters.risk)
+      opportunities = opportunities.filter((item) => item.riskCategory === filters.risk);
+    if (filters.liquidity)
+      opportunities = opportunities.filter((item) =>
+        (item.liquidityConsiderations ?? '')
+          .toLowerCase()
+          .includes(filters.liquidity!.toLowerCase()),
+      );
+    if (filters.yield) {
+      const direction = filters.yield === 'lowest' ? -1 : 1;
+      opportunities.sort(
+        (a, b) =>
+          direction *
+          (Number(b.totalEstimatedYield ?? '-1') - Number(a.totalEstimatedYield ?? '-1')),
+      );
+    }
+    return opportunities;
   }
 }
