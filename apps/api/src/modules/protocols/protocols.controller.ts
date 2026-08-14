@@ -94,4 +94,28 @@ export class ProtocolsController {
       reserveTokenIds: body.reserveTokenIds ? JSON.parse(body.reserveTokenIds) : undefined,
     } as ProtocolTransactionRequest);
   }
+  @Get('sushi/status') sushiStatus(@Query('network') network: 'mainnet' | 'testnet' = 'mainnet') {
+    return this.protocols.sushiStatus(network);
+  }
+  @Get('sushi/markets') sushiMarkets(@Query('network') network: 'mainnet' | 'testnet' = 'mainnet') {
+    return this.protocols.sushiMarkets(network);
+  }
+  @Get('sushi/positions/:address') sushiPositions(
+    @Param('address') address: string,
+    @Query('network') network: 'mainnet' | 'testnet' = 'mainnet',
+  ) {
+    return this.protocols.sushiPositions(network, address);
+  }
+  @Get('sushi/yield') sushiYield(@Query('network') network: 'mainnet' | 'testnet' = 'mainnet') {
+    return this.protocols.sushiYield(network);
+  }
+  @Post('sushi/transactions/:operation/prepare') prepareSushi(
+    @Param('operation') operation: string,
+    @Body() body: PrepareBlendTransactionDto,
+  ) {
+    return this.protocols.sushiPrepare(operation, {
+      ...body,
+      decimals: body.decimals ? Number(body.decimals) : undefined,
+    } as ProtocolTransactionRequest);
+  }
 }

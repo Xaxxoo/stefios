@@ -25,6 +25,13 @@ export class ProtocolsService {
       throw new ServiceUnavailableException('Aquarius integration is not configured');
     }
   }
+  private sushi() {
+    try {
+      return this.registry.get('sushi');
+    } catch {
+      throw new ServiceUnavailableException('Sushi integration is not configured');
+    }
+  }
 
   markets(network: 'mainnet' | 'testnet') {
     return this.blend().discoverMarkets(network);
@@ -69,6 +76,34 @@ export class ProtocolsService {
     const builder = builders[operation];
     if (!builder)
       throw new ServiceUnavailableException(`Aquarius operation is not supported: ${operation}`);
+    return builder(request);
+  }
+  sushiStatus(network: 'mainnet' | 'testnet') {
+    const adapter = this.sushi();
+    return 'status' in adapter && typeof adapter.status === 'function'
+      ? adapter.status(network)
+      : { status: 'unavailable', reason: 'Sushi status provider unavailable' };
+  }
+  sushiMarkets(network: 'mainnet' | 'testnet') {
+    return this.sushi().discoverMarkets(network);
+  }
+  sushiPositions(network: 'mainnet' | 'testnet', account: string) {
+    return this.sushi().getUserPositions(network, account);
+  }
+  sushiYield(network: 'mainnet' | 'testnet') {
+    return this.sushi().getYieldMetrics(network);
+  }
+  sushiPrepare(operation: string, request: ProtocolTransactionRequest) {
+    const adapter = this.sushi();
+    const builders: Record<string, (value: ProtocolTransactionRequest) => Promise<unknown>> = {
+      addLiquidity: adapter.buildDepositLiquidityTransaction.bind(adapter),
+      removeLiquidity: adapter.buildWithdrawLiquidityTransaction.bind(adapter),
+      collectFees: adapter.buildClaimTransaction.bind(adapter),
+      swap: adapter.buildSwapTransaction.bind(adapter),
+    };
+    const builder = builders[operation];
+    if (!builder)
+      throw new ServiceUnavailableException(`Sushi operation is not supported: ${operation}`);
     return builder(request);
   }
   prepare(operation: string, request: ProtocolTransactionRequest) {

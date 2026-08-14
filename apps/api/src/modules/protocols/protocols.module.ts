@@ -5,6 +5,8 @@ import {
   AquariusSdkAdapter,
   BlendSdkAdapter,
   ProtocolRegistry,
+  SushiSdkAdapter,
+  UnavailableSushiProvider,
 } from '@sfo/protocol-adapters';
 import type { AquariusConfig } from '@sfo/protocol-adapters';
 import type { BlendConfig, BlendSimulationResult } from '@sfo/protocol-adapters';
@@ -109,7 +111,11 @@ function poolIds(value: string | undefined): readonly string[] {
             };
           },
         });
-        return new ProtocolRegistry([adapter, aquarius]);
+        return new ProtocolRegistry([
+          adapter,
+          aquarius,
+          new SushiSdkAdapter(new UnavailableSushiProvider()),
+        ]);
       },
     },
     ProtocolsService,
