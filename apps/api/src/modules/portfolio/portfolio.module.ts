@@ -32,5 +32,6 @@ import { PortfolioService } from './portfolio.service';
   ],
   controllers: [PortfolioController],
   providers: [PortfolioService],
+  exports: [PortfolioService],
 })
 export class PortfolioModule {}
