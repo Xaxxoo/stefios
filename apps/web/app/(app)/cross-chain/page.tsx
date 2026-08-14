@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../features/product-routes/product-route';
+import { CrossChainPage } from '../../../features/cross-chain/cross-chain-page';
 export const metadata: Metadata = {
   title: 'Cross-chain',
   description: 'Cross-chain transfer monitoring.',
 };
-export default function CrossChainPage() {
-  return <ProductRoute kind="cross-chain" />;
+export default function CrossChainRoute() {
+  return <CrossChainPage />;
 }

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../features/product-routes/product-route';
+import { WatchlistPage } from '../../../features/watchlist/watchlist-page';
 export const metadata: Metadata = {
   title: 'Watchlist',
   description: 'Your monitored Stellar assets and products.',
 };
-export default function WatchlistPage() {
-  return <ProductRoute kind="watchlist" />;
+export default function WatchlistRoute() {
+  return <WatchlistPage />;
 }
