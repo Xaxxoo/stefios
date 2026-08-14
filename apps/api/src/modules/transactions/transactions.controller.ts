@@ -3,6 +3,7 @@ import { IsIn, IsOptional, IsString } from 'class-validator';
 import type { TransactionAction } from '@sfo/shared';
 import type { ProtocolTransactionRequest, QuoteRequest } from '@sfo/protocol-adapters';
 import type { TransactionsService } from './transactions.service';
+import type { ActivityService } from '../activity/activity.service';
 
 class ComposeTransactionDto implements Partial<ProtocolTransactionRequest> {
   @IsString() account!: string;
@@ -17,6 +18,7 @@ class ComposeTransactionDto implements Partial<ProtocolTransactionRequest> {
     'withdrawLiquidity',
     'claim',
     'swap',
+    'payment',
   ])
   action!: TransactionAction;
   @IsOptional() marketId?: string;
@@ -33,6 +35,13 @@ class ComposeTransactionDto implements Partial<ProtocolTransactionRequest> {
   @IsOptional() minShares?: string;
   @IsOptional() minAmounts?: readonly string[];
   @IsOptional() quoteExpiresAt?: string;
+  @IsOptional() destination?: string;
+  @IsOptional() memo?: string;
+  @IsOptional() path?: ProtocolTransactionRequest['path'];
+  @IsOptional() pathMode?: ProtocolTransactionRequest['pathMode'];
+  @IsOptional() destAmount?: string;
+  @IsOptional() destMin?: string;
+  @IsOptional() sendMax?: string;
 }
 class SubmitTransactionDto {
   @IsIn(['mainnet', 'testnet']) network!: 'mainnet' | 'testnet';
@@ -50,15 +59,21 @@ class QuoteDto implements QuoteRequest {
 
 @Controller({ path: 'transactions', version: '1' })
 export class TransactionsController {
-  constructor(private readonly transactions: TransactionsService) {}
+  constructor(
+    private readonly transactions: TransactionsService,
+    private readonly activity: ActivityService,
+  ) {}
   @Post('compose') compose(@Body() body: ComposeTransactionDto) {
     return this.transactions.compose(body as ComposerRequest);
   }
   @Post('submit') submit(@Body() body: SubmitTransactionDto) {
     return this.transactions.submit(body.network, body.signedTransactionXdr);
   }
-  @Get(':hash') monitor(@Param('hash') hash: string) {
+  @Get(':hash/status') status(@Param('hash') hash: string) {
     return this.transactions.monitor(hash);
+  }
+  @Get(':hash') monitor(@Param('hash') hash: string) {
+    return this.activity.detail(hash);
   }
 }
 

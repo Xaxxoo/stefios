@@ -21,6 +21,7 @@ function service() {
       withdrawLiquidity: false,
       claim: false,
       swap: false,
+      payment: false,
     },
     buildSupplyTransaction: async () => ({
       protocol: 'blend',
@@ -71,6 +72,8 @@ function service() {
   };
   const registry = { get: () => adapter };
   const stellar = {
+    getAccount: async () => ({ address: account, sequence: '1', balances: [], raw: {} }),
+    simulate: async () => ({ status: 'success' }),
     submitAlreadySignedTransaction: async () => ({ status: 'PENDING', hash: 'hash-1' }),
     getTransaction: async (hash: string) => ({ status: 'SUCCESS', hash }),
   };
@@ -99,5 +102,22 @@ describe('TransactionsService', () => {
     const submitted = await composer.submit('testnet', 'signed-xdr');
     assert.equal(submitted.hash, 'hash-1');
     assert.deepEqual(await composer.monitor('hash-1'), { status: 'SUCCESS', hash: 'hash-1' });
+  });
+
+  it('builds and simulates a native payment without signing it', async () => {
+    const result = await service().compose({
+      protocol: 'stellar',
+      action: 'payment',
+      account,
+      network: 'testnet',
+      asset: { network: 'testnet', type: 'native' },
+      amount: '1.25',
+      destination: account,
+      memo: 'invoice-1',
+    });
+    assert.equal(result.intent.action, 'payment');
+    assert.equal(result.lifecycle, 'previewed');
+    assert.ok(result.transactionXdr.length > 0);
+    assert.equal(result.intent.outputAssets[0]?.amount, '1.25');
   });
 });

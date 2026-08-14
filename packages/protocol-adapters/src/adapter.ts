@@ -10,6 +10,7 @@ import type {
   ProtocolPosition,
   ProtocolRiskMetrics,
   ProtocolTransactionRequest,
+  ProtocolQuote,
   ProtocolYieldMetrics,
   UnsignedProtocolTransaction,
 } from './types';
@@ -59,10 +60,11 @@ export interface ProtocolAdapter {
   ): Promise<UnsignedProtocolTransaction>;
   buildClaimTransaction(request: ProtocolTransactionRequest): Promise<UnsignedProtocolTransaction>;
   buildSwapTransaction(request: ProtocolTransactionRequest): Promise<UnsignedProtocolTransaction>;
-  getQuote?(request: QuoteRequest): Promise<import('./types').ProtocolQuote>;
+  getQuote?(request: QuoteRequest): Promise<ProtocolQuote>;
 }
 
 const EMPTY_CAPABILITIES: ProtocolCapabilities = {
+  payment: false,
   supply: false,
   withdraw: false,
   borrow: false,

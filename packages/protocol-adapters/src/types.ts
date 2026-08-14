@@ -7,8 +7,9 @@ import type {
   YieldOpportunity,
 } from '@sfo/shared';
 
-export type ProtocolId = 'blend' | 'aquarius' | 'sushi' | 'templar';
+export type ProtocolId = 'stellar' | 'blend' | 'aquarius' | 'sushi' | 'templar';
 export type ProtocolOperation =
+  | 'payment'
   | 'supply'
   | 'withdraw'
   | 'borrow'
@@ -163,6 +164,12 @@ export type ProtocolTransactionRequest = {
   minShares?: string;
   minAmounts?: readonly string[];
   quote?: ProtocolQuote;
+  memo?: string;
+  path?: readonly AssetId[];
+  pathMode?: 'strictSend' | 'strictReceive';
+  destAmount?: string;
+  destMin?: string;
+  sendMax?: string;
 };
 
 export type ProtocolQuote = {

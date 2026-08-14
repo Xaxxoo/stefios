@@ -131,6 +131,7 @@ export const RiskMetricSchema = z.object({
 export type RiskMetric = z.infer<typeof RiskMetricSchema>;
 
 export const TransactionActionSchema = z.enum([
+  'payment',
   'supply',
   'withdraw',
   'borrow',

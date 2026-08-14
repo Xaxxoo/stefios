@@ -4,7 +4,15 @@ import {
   Injectable,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import type { ConfigService } from '@nestjs/config';
+import {
+  Account,
+  Asset,
+  Memo,
+  Networks,
+  Operation,
+  TransactionBuilder,
+} from '@stellar/stellar-sdk';
 import type { AssetAmount, TransactionAction, TransactionIntent } from '@sfo/shared';
 import type {
   ProtocolAdapter,
@@ -14,7 +22,13 @@ import type {
   UnsignedProtocolTransaction,
 } from '@sfo/protocol-adapters';
 import { aggregateSwapQuotes } from '@sfo/protocol-adapters';
-import type { StellarTransactionProvider, TransactionSubmissionProvider } from '@sfo/stellar';
+import type {
+  StellarAccountProvider,
+  StellarRpcProvider,
+  TransactionSimulationProvider,
+  StellarTransactionProvider,
+  TransactionSubmissionProvider,
+} from '@sfo/stellar';
 import { PROTOCOL_REGISTRY } from '../protocols/protocols.tokens';
 import { STELLAR_RPC_PROVIDER } from '../stellar/stellar.module';
 
@@ -45,7 +59,11 @@ export class TransactionsService {
   constructor(
     @Inject(PROTOCOL_REGISTRY) private readonly registry: ProtocolRegistry,
     @Inject(STELLAR_RPC_PROVIDER)
-    private readonly stellar: StellarTransactionProvider & TransactionSubmissionProvider,
+    private readonly stellar: StellarRpcProvider &
+      StellarAccountProvider &
+      TransactionSimulationProvider &
+      StellarTransactionProvider &
+      TransactionSubmissionProvider,
     private readonly config: ConfigService,
   ) {}
 
@@ -62,9 +80,12 @@ export class TransactionsService {
       throw new BadRequestException(
         'Selected swap quote has expired. Refresh quotes before composing.',
       );
-    const adapter = this.adapter(request.protocol);
-    const builder = this.builder(adapter, request.action);
-    const prepared = (await builder(request)) as Prepared;
+    const adapter = request.action === 'payment' ? null : this.adapter(request.protocol);
+    const prepared = (
+      request.action === 'payment'
+        ? await this.buildPayment(request)
+        : await this.builder(adapter!, request.action)(request)
+    ) as Prepared;
     if (prepared.status !== 'simulated' || !prepared.transactionXdr)
       throw new ServiceUnavailableException('This action did not produce a simulated transaction');
     const intent = this.intent(request, prepared);
@@ -121,6 +142,11 @@ export class TransactionsService {
       TransactionAction,
       (request: ProtocolTransactionRequest) => Promise<unknown>
     > = {
+      payment: async () => {
+        throw new BadRequestException(
+          'Payment construction is handled by the Stellar payment composer',
+        );
+      },
       supply: adapter.buildSupplyTransaction.bind(adapter),
       withdraw: adapter.buildWithdrawTransaction.bind(adapter),
       borrow: adapter.buildBorrowTransaction.bind(adapter),
@@ -135,18 +161,115 @@ export class TransactionsService {
     return builders[action];
   }
 
+  private async buildPayment(request: ComposerRequest): Promise<Prepared> {
+    if (!request.asset || !request.amount || !request.destination)
+      throw new BadRequestException('Payment requires asset, amount, and recipient');
+    if (request.asset.type === 'contract')
+      throw new BadRequestException('Contract-token payments require a verified protocol route');
+    const account = await this.stellar.getAccount(request.account);
+    const asset =
+      request.asset.type === 'native'
+        ? Asset.native()
+        : new Asset(request.asset.assetCode!, request.asset.issuerAddress!);
+    const destination = request.destination;
+    const operation =
+      request.pathMode === 'strictReceive'
+        ? Operation.pathPaymentStrictReceive({
+            sendAsset: asset,
+            sendMax: request.sendMax ?? request.amount,
+            destAsset: request.quoteAsset ? this.stellarAsset(request.quoteAsset) : asset,
+            destAmount: request.destAmount ?? request.amount,
+            destination,
+            path: (request.path ?? []).map((item) => this.stellarAsset(item)),
+          })
+        : request.quoteAsset
+          ? Operation.pathPaymentStrictSend({
+              sendAsset: asset,
+              sendAmount: request.amount,
+              destAsset: this.stellarAsset(request.quoteAsset),
+              destMin: request.destMin ?? request.minReceived ?? request.amount,
+              destination,
+              path: (request.path ?? []).map((item) => this.stellarAsset(item)),
+            })
+          : Operation.payment({ destination, asset, amount: request.amount });
+    const builder = new TransactionBuilder(new Account(request.account, account.sequence), {
+      fee: '100',
+      networkPassphrase: request.network === 'mainnet' ? Networks.PUBLIC : Networks.TESTNET,
+    })
+      .addOperation(operation)
+      .setTimeout(300);
+    if (request.memo) builder.addMemo(Memo.text(request.memo));
+    const transactionXdr = builder.build().toXDR();
+    const simulation = await this.stellar.simulate(transactionXdr);
+    if ('error' in simulation && simulation.error)
+      throw new BadRequestException(`Payment simulation failed: ${String(simulation.error)}`);
+    return {
+      protocol: 'stellar',
+      operation: 'payment',
+      network: request.network,
+      sourceAccount: request.account,
+      marketId: null,
+      asset: request.asset,
+      amount: request.amount,
+      quoteAsset: request.quoteAsset ?? null,
+      minReceived: request.destMin ?? request.minReceived ?? null,
+      slippageBps: request.slippageBps ?? null,
+      destination,
+      positionId: null,
+      decimals: request.decimals ?? null,
+      reserveTokenIds: [],
+      requiredSigners: [request.account],
+      status: 'simulated',
+      transactionXdr,
+      preview: {
+        title: request.quoteAsset ? 'Stellar path payment' : 'Stellar payment',
+        summary: `${request.amount} ${request.asset.type === 'native' ? 'XLM' : request.asset.assetCode} to ${destination}`,
+        warnings: ['Verify the recipient, asset issuer, memo, and path before signing.'],
+        simulation,
+      },
+    };
+  }
+
+  private stellarAsset(asset: NonNullable<ProtocolTransactionRequest['asset']>) {
+    if (asset.type === 'native') return Asset.native();
+    if (asset.type === 'classic') return new Asset(asset.assetCode!, asset.issuerAddress!);
+    throw new BadRequestException(
+      'Contract assets cannot be used in classic Stellar path payments',
+    );
+  }
+
   private intent(request: ComposerRequest, prepared: Prepared): TransactionIntent {
     const inputAssets: AssetAmount[] =
       request.asset && request.amount ? [{ asset: request.asset, amount: request.amount }] : [];
     const quote = prepared.quote;
+    const paymentOutputAsset =
+      request.action === 'payment' ? (request.quoteAsset ?? request.asset) : undefined;
+    const paymentExpectedAmount =
+      request.action === 'payment'
+        ? request.quoteAsset
+          ? request.pathMode === 'strictReceive'
+            ? request.destAmount
+            : undefined
+          : request.amount
+        : undefined;
+    const paymentMinimumAmount =
+      request.action === 'payment'
+        ? request.quoteAsset
+          ? request.pathMode === 'strictReceive'
+            ? request.destAmount
+            : (request.destMin ?? request.minReceived)
+          : request.amount
+        : undefined;
     const outputAssets: AssetAmount[] =
-      request.quoteAsset && quote?.amountOut
-        ? [{ asset: request.quoteAsset, amount: quote.amountOut }]
+      paymentOutputAsset && (quote?.amountOut ?? paymentExpectedAmount)
+        ? [{ asset: paymentOutputAsset, amount: quote?.amountOut ?? paymentExpectedAmount! }]
         : [];
     const minimumOutputs: AssetAmount[] =
-      request.quoteAsset && request.minReceived
-        ? [{ asset: request.quoteAsset, amount: request.minReceived }]
-        : [];
+      paymentOutputAsset && paymentMinimumAmount
+        ? [{ asset: paymentOutputAsset, amount: paymentMinimumAmount }]
+        : request.quoteAsset && request.minReceived
+          ? [{ asset: request.quoteAsset, amount: request.minReceived }]
+          : [];
     const warnings = ['Review the simulated transaction and wallet confirmation before signing.'];
     if (request.action === 'swap' && !quote)
       warnings.push('Quote details were not returned by the provider.');
