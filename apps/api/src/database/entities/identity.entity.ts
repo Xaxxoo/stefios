@@ -21,6 +21,9 @@ export class Session extends ApplicationEntity {
   @Column({ type: 'varchar', length: 32, default: 'testnet' }) network!: string;
   @Column({ type: 'timestamptz' }) expiresAt!: Date;
   @Column({ type: 'timestamptz', nullable: true }) revokedAt!: Date | null;
+  @Column({ type: 'timestamptz', nullable: true }) lastUsedAt!: Date | null;
+  @Column({ type: 'varchar', length: 255, nullable: true }) userAgent!: string | null;
+  @Column({ type: 'varchar', length: 64, nullable: true }) ipAddress!: string | null;
 }
 
 @Entity('wallet_connections')
@@ -32,7 +35,11 @@ export class WalletConnection extends ApplicationEntity {
   @Column({ type: 'varchar', length: 32 }) network!: string;
   @Column({ type: 'varchar', length: 128 }) walletAddress!: string;
   @Column({ type: 'varchar', length: 64 }) provider!: string;
+  @Column({ type: 'varchar', length: 255, nullable: true }) label!: string | null;
+  @Column({ type: 'varchar', length: 128, nullable: true }) accountGroup!: string | null;
+  @Column({ type: 'boolean', default: false }) isViewOnly!: boolean;
   @Column({ type: 'timestamptz', nullable: true }) lastSeenAt!: Date | null;
+  @Column({ type: 'timestamptz', nullable: true }) lastSyncAt!: Date | null;
 }
 
 @Entity('stellar_accounts')

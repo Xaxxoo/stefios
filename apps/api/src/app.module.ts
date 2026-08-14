@@ -25,6 +25,7 @@ import { YieldModule } from './modules/yield/yield.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { WatchlistModule } from './modules/watchlist/watchlist.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
+import { InstitutionalModule } from './modules/institutional/institutional.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { AlertsModule } from './modules/alerts/alerts.module';
     NotificationsModule,
     WatchlistModule,
     AlertsModule,
+    InstitutionalModule,
   ],
 })
 export class AppModule implements NestModule {

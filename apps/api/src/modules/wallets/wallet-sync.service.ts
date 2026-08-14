@@ -1,5 +1,6 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { StrKey } from '@stellar/stellar-sdk';
 import type Redis from 'ioredis';
 import type { Repository } from 'typeorm';
 import {
@@ -10,6 +11,7 @@ import {
   StellarAccount,
   SyncCursor,
   Transaction,
+  WalletConnection,
 } from '../../database/entities';
 import type {
   StellarAccountProvider,
@@ -44,6 +46,8 @@ export class WalletSyncService {
     @InjectRepository(Operation) private readonly operations: Repository<Operation>,
     @InjectRepository(Payment) private readonly payments: Repository<Payment>,
     @InjectRepository(SyncCursor) private readonly cursors: Repository<SyncCursor>,
+    @InjectRepository(WalletConnection)
+    private readonly connections: Repository<WalletConnection>,
     @InjectQueue(SYNC_QUEUE) private readonly queue: Queue,
     @Inject(STELLAR_RPC_PROVIDER)
     private readonly provider: StellarAccountProvider &
@@ -101,6 +105,95 @@ export class WalletSyncService {
     };
   }
 
+  async listConnections(userId: string, network?: 'testnet' | 'mainnet') {
+    const rows = await this.connections.find({
+      where: { userId, ...(network ? { network } : {}) },
+      order: { createdAt: 'DESC' },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      address: row.walletAddress,
+      network: row.network,
+      provider: row.provider,
+      label: row.label,
+      accountGroup: row.accountGroup,
+      access: row.isViewOnly ? 'VIEW_ONLY_ACCOUNT' : 'CONNECTED_SIGNABLE_ACCOUNT',
+      isViewOnly: row.isViewOnly,
+      lastSeenAt: row.lastSeenAt,
+      lastSyncAt: row.lastSyncAt,
+    }));
+  }
+
+  async addViewOnly(
+    userId: string,
+    network: 'testnet' | 'mainnet',
+    address: string,
+    label?: string,
+    accountGroup?: string,
+  ) {
+    if (!StrKey.isValidEd25519PublicKey(address))
+      throw new BadRequestException('A valid Stellar public account address is required');
+    const existing = await this.connections.findOne({
+      where: { userId, network, walletAddress: address },
+    });
+    if (existing && !existing.isViewOnly)
+      throw new BadRequestException('This account is already connected as a signable wallet');
+    const connection =
+      existing ??
+      this.connections.create({
+        userId,
+        network,
+        walletAddress: address,
+        provider: 'view-only',
+        label: label ?? null,
+        accountGroup: accountGroup ?? null,
+        isViewOnly: true,
+        lastSeenAt: null,
+        lastSyncAt: null,
+      });
+    if (existing) {
+      connection.label = label ?? connection.label;
+      connection.accountGroup = accountGroup ?? connection.accountGroup;
+      connection.isViewOnly = true;
+    }
+    await this.connections.save(connection);
+    const sync = await this.enqueue({ network, address });
+    return { address, network, access: 'VIEW_ONLY_ACCOUNT', sync };
+  }
+
+  async updateConnection(
+    userId: string,
+    address: string,
+    network: 'testnet' | 'mainnet',
+    patch: { label?: string; accountGroup?: string },
+  ) {
+    const connection = await this.connections.findOne({
+      where: { userId, network, walletAddress: address },
+    });
+    if (!connection) throw new NotFoundException('Wallet connection not found');
+    if (patch.label !== undefined) connection.label = patch.label.trim().slice(0, 255) || null;
+    if (patch.accountGroup !== undefined)
+      connection.accountGroup = patch.accountGroup.trim().slice(0, 128) || null;
+    return this.connections.save(connection);
+  }
+
+  async removeConnection(userId: string, address: string, network: 'testnet' | 'mainnet') {
+    const connection = await this.connections.findOne({
+      where: { userId, network, walletAddress: address },
+    });
+    if (!connection) throw new NotFoundException('Wallet connection not found');
+    await this.connections.remove(connection);
+    return { ok: true };
+  }
+
+  async ensureUserConnection(userId: string, address: string, network: 'testnet' | 'mainnet') {
+    const connection = await this.connections.findOne({
+      where: { userId, network, walletAddress: address },
+    });
+    if (!connection) throw new NotFoundException('Wallet is not connected to this workspace');
+    return connection;
+  }
+
   async listWallets(
     network?: 'testnet' | 'mainnet',
     address?: string,
@@ -132,6 +225,10 @@ export class WalletSyncService {
         if (name === SYNC_JOB_NAMES.protocolPositions) await this.syncProtocolPositions(payload);
         await this.markCursor(payload, name, 'complete', undefined);
         await this.markOverall(payload, 'complete');
+        await this.connections.update(
+          { network: payload.network, walletAddress: payload.address },
+          { lastSyncAt: new Date(), lastSeenAt: new Date() },
+        );
         await this.redis.del(`sfo:portfolio:${payload.network}:${payload.address}`);
       } catch (error) {
         await this.markCursor(

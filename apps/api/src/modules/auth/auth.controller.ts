@@ -6,14 +6,21 @@ import {
   Headers,
   Param,
   Post,
+  Patch,
   Req,
   Res,
   UnauthorizedException,
 } from '@nestjs/common';
+import { IsBoolean, IsOptional } from 'class-validator';
 import type { Request, Response } from 'express';
 import { AUTH_CSRF_COOKIE, AUTH_SESSION_COOKIE } from './auth.service';
 import type { AuthService } from './auth.service';
 import type { CreateChallengeDto, VerifyChallengeDto } from './dto/auth.dto';
+
+class SecurityPreferencesDto {
+  @IsOptional() @IsBoolean() requireTransactionReview?: boolean;
+  @IsOptional() @IsBoolean() showSimulationWarnings?: boolean;
+}
 
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
@@ -25,9 +32,16 @@ export class AuthController {
 
   @Post('verify') async verify(
     @Body() body: VerifyChallengeDto,
+    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const result = await this.auth.verifyChallenge(body);
+    const result = await this.auth.verifyChallenge(body, {
+      userAgent:
+        typeof request.headers['user-agent'] === 'string'
+          ? request.headers['user-agent']
+          : undefined,
+      ipAddress: request.ip,
+    });
     this.setCookie(response, AUTH_SESSION_COOKIE, result.sessionToken, result.session.expiresAt);
     this.setCookie(response, AUTH_CSRF_COOKIE, result.csrfToken, result.session.expiresAt, false);
     return { session: result.session };
@@ -58,6 +72,19 @@ export class AuthController {
     const session = token ? await this.auth.getSessionByToken(token) : null;
     if (!session) throw new UnauthorizedException('Session is invalid or revoked');
     return this.auth.listSessions(session.userId);
+  }
+  @Get('security/preferences') async preferences(@Req() request: Request) {
+    const session = await this.currentSession(request);
+    return this.auth.securityPreferences(session.userId);
+  }
+  @Patch('security/preferences') async updatePreferences(
+    @Req() request: Request,
+    @Headers('x-csrf-token') csrfToken: string | undefined,
+    @Body() body: SecurityPreferencesDto,
+  ) {
+    this.requireCsrf(request, csrfToken);
+    const session = await this.currentSession(request);
+    return this.auth.updateSecurityPreferences(session.userId, body);
   }
   @Delete('sessions/:id') async revoke(
     @Req() request: Request,
@@ -96,5 +123,11 @@ export class AuthController {
       expires,
       path: '/',
     });
+  }
+  private async currentSession(request: Request) {
+    const token = this.sessionToken(request);
+    const session = token ? await this.auth.getSessionByToken(token) : null;
+    if (!session) throw new UnauthorizedException('Session is invalid or revoked');
+    return session;
   }
 }

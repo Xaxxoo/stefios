@@ -9,7 +9,9 @@ import {
   StellarAccount,
   SyncCursor,
   Transaction,
+  WalletConnection,
 } from '../../database/entities';
+import { AuthModule } from '../auth/auth.module';
 import { RedisLockService } from './redis-lock';
 import { WalletSyncProcessor } from './wallet-sync.processor';
 import { WalletsController } from './wallets.controller';
@@ -18,6 +20,7 @@ import { SYNC_QUEUE } from './sync.types';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       AccountBalance,
       Asset,
@@ -26,6 +29,7 @@ import { SYNC_QUEUE } from './sync.types';
       StellarAccount,
       SyncCursor,
       Transaction,
+      WalletConnection,
     ]),
     BullModule.registerQueue({ name: SYNC_QUEUE }),
   ],

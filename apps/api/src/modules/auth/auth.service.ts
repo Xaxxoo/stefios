@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Keypair } from '@stellar/stellar-sdk';
 import type { Repository } from 'typeorm';
 import { AuthChallenge } from '../../database/entities/auth-challenge.entity';
-import { Session, User } from '../../database/entities/identity.entity';
+import { Session, User, WalletConnection } from '../../database/entities/identity.entity';
 import type { CreateChallengeDto, VerifyChallengeDto } from './dto/auth.dto';
 import { isSessionActive } from './auth-verifier';
 
@@ -19,6 +19,7 @@ export interface AuthSession {
   network: string;
   expiresAt: Date;
 }
+export type AuthContext = { userAgent?: string; ipAddress?: string };
 
 @Injectable()
 export class AuthService {
@@ -30,6 +31,8 @@ export class AuthService {
     @InjectRepository(AuthChallenge) private readonly challenges: Repository<AuthChallenge>,
     @InjectRepository(Session) private readonly sessions: Repository<Session>,
     @InjectRepository(User) private readonly users: Repository<User>,
+    @InjectRepository(WalletConnection)
+    private readonly walletConnections: Repository<WalletConnection>,
     private readonly config: ConfigService,
   ) {
     this.challengeTtlMs = Number(this.config.get('app.authChallengeTtlSeconds', 300)) * 1000;
@@ -61,6 +64,7 @@ export class AuthService {
 
   async verifyChallenge(
     dto: VerifyChallengeDto,
+    context: AuthContext = {},
   ): Promise<{ session: AuthSession; csrfToken: string; sessionToken: string }> {
     this.checkRateLimit(`verify:${dto.accountAddress}`);
     const challenge = await this.challenges.findOne({ where: { id: dto.challengeId } });
@@ -87,6 +91,20 @@ export class AuthService {
           metadata: null,
         }),
       );
+    await this.walletConnections.upsert(
+      {
+        userId: user.id,
+        network: dto.network,
+        walletAddress: dto.accountAddress,
+        provider: 'wallet',
+        label: null,
+        accountGroup: null,
+        isViewOnly: false,
+        lastSeenAt: new Date(),
+        lastSyncAt: null,
+      },
+      ['userId', 'network', 'walletAddress'],
+    );
     const sessionToken = randomUUID() + randomBytes(32).toString('hex');
     const session = await this.sessions.save(
       this.sessions.create({
@@ -95,6 +113,9 @@ export class AuthService {
         network: dto.network,
         expiresAt: new Date(Date.now() + this.sessionTtlMs),
         revokedAt: null,
+        lastUsedAt: new Date(),
+        userAgent: context.userAgent?.slice(0, 255) ?? null,
+        ipAddress: context.ipAddress?.slice(0, 64) ?? null,
       }),
     );
     return {
@@ -134,6 +155,14 @@ export class AuthService {
 
   async getSessionByToken(token: string): Promise<AuthSession | null> {
     const session = await this.sessions.findOne({ where: { tokenHash: this.hash(token) } });
+    if (
+      session &&
+      !session.revokedAt &&
+      (!session.lastUsedAt || Date.now() - session.lastUsedAt.getTime() > 300_000)
+    ) {
+      session.lastUsedAt = new Date();
+      await this.sessions.save(session);
+    }
     return session ? this.getSession(session.id) : null;
   }
 
@@ -146,7 +175,49 @@ export class AuthService {
       createdAt: session.createdAt,
       expiresAt: session.expiresAt,
       revokedAt: session.revokedAt,
+      lastUsedAt: session.lastUsedAt,
+      userAgent: session.userAgent,
+      ipAddress: session.ipAddress,
     }));
+  }
+
+  async securityPreferences(userId: string) {
+    const user = await this.users.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('User is unavailable');
+    const security =
+      user.metadata?.security && typeof user.metadata.security === 'object'
+        ? (user.metadata.security as Record<string, unknown>)
+        : null;
+    return {
+      requireTransactionReview:
+        security && typeof security.requireTransactionReview === 'boolean'
+          ? security.requireTransactionReview
+          : true,
+      showSimulationWarnings:
+        security && typeof security.showSimulationWarnings === 'boolean'
+          ? security.showSimulationWarnings
+          : true,
+      trustedApplicationOrigin: this.config.get<string>('app.webOrigin', 'http://localhost:3000'),
+    };
+  }
+
+  async updateSecurityPreferences(
+    userId: string,
+    preferences: { requireTransactionReview?: boolean; showSimulationWarnings?: boolean },
+  ) {
+    const user = await this.users.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('User is unavailable');
+    user.metadata = {
+      ...(user.metadata ?? {}),
+      security: {
+        ...(user.metadata?.security && typeof user.metadata.security === 'object'
+          ? user.metadata.security
+          : {}),
+        ...preferences,
+      },
+    };
+    await this.users.save(user);
+    return this.securityPreferences(userId);
   }
 
   private message(challengeId: string, nonce: string, dto: CreateChallengeDto): string {
