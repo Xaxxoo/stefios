@@ -30,6 +30,7 @@ export type RiskPortfolioInput = {
   }[];
   byCategory: readonly { category: string; value: string }[];
   byProtocol: readonly { protocol: string; value: string }[];
+  rwaManagers?: readonly { manager: string; value: string }[];
   positionHealth: readonly { name: string; value: string; severity: string; protocol?: string }[];
 };
 export type RiskSignal = {
@@ -137,6 +138,9 @@ export function calculatePortfolioRisk(input: RiskPortfolioInput): PortfolioRisk
   const issuerConcentration = maxConcentration(issuerGroups, gross);
   const protocolConcentration = maxConcentration(input.byProtocol, gross);
   const rwa = input.byCategory.find((row) => ['rwa', 'fund'].includes(row.category.toLowerCase()));
+  const rwaManagerConcentration = input.rwaManagers?.length
+    ? maxConcentration(input.rwaManagers, gross)
+    : null;
   const stablecoins = input.byCategory.find((row) =>
     ['stablecoin', 'stablecoins'].includes(row.category.toLowerCase()),
   );
@@ -170,10 +174,12 @@ export function calculatePortfolioRisk(input: RiskPortfolioInput): PortfolioRisk
     ),
     signal(
       'rwaManagerExposure',
-      rwa && gross.gt(0) ? exposureRisk(d(rwa.value).div(gross)) : null,
-      rwa
-        ? 'Manager-level attribution is unavailable; this is only total RWA exposure.'
-        : 'No RWA manager exposure was identified.',
+      rwaManagerConcentration,
+      rwaManagerConcentration === null
+        ? rwa
+          ? 'RWA exposure exists, but manager attribution is unavailable.'
+          : 'No RWA manager exposure was identified.'
+        : 'Score reflects the largest identified RWA manager share of gross assets.',
       'Inspect manager, issuer, disclosures, and restrictions before relying on RWA diversification.',
     ),
     signal(
