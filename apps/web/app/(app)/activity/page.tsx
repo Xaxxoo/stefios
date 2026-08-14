@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../features/product-routes/product-route';
+import { ActivityPage as ActivityScreen } from '../../../features/activity/activity-page';
 export const metadata: Metadata = {
   title: 'Activity',
   description: 'Normalized account activity.',
 };
 export default function ActivityPage() {
-  return <ProductRoute kind="activity" />;
+  return <ActivityScreen />;
 }

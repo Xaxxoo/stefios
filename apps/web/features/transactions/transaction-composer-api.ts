@@ -14,6 +14,11 @@ export type ComposerRequest = {
   slippageBps?: string;
   positionId?: string;
   quoteExpiresAt?: string;
+  destination?: string;
+  memo?: string;
+  pathMode?: 'strictSend' | 'strictReceive';
+  destAmount?: string;
+  destMin?: string;
 };
 export type ComposedTransaction = {
   lifecycle: 'previewed';
@@ -48,5 +53,7 @@ export const transactionComposerApi = {
       signedTransactionXdr,
     }),
   monitor: (hash: string) =>
-    api.get<{ status?: string; successful?: boolean }>(`/transactions/${encodeURIComponent(hash)}`),
+    api.get<{ status?: string; successful?: boolean }>(
+      `/transactions/${encodeURIComponent(hash)}/status`,
+    ),
 };
