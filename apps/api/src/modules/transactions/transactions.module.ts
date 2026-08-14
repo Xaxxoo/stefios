@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ProtocolsModule } from '../protocols/protocols.module';
-import { TransactionsController } from './transactions.controller';
+import { SwapController, TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 
 @Module({
   imports: [ProtocolsModule],
-  controllers: [TransactionsController],
+  controllers: [TransactionsController, SwapController],
   providers: [TransactionsService],
   exports: [TransactionsService],
 })

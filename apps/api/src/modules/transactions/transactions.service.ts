@@ -10,13 +10,19 @@ import type {
   ProtocolAdapter,
   ProtocolRegistry,
   ProtocolTransactionRequest,
+  QuoteRequest,
   UnsignedProtocolTransaction,
 } from '@sfo/protocol-adapters';
+import { aggregateSwapQuotes } from '@sfo/protocol-adapters';
 import type { StellarTransactionProvider, TransactionSubmissionProvider } from '@sfo/stellar';
 import { PROTOCOL_REGISTRY } from '../protocols/protocols.tokens';
 import { STELLAR_RPC_PROVIDER } from '../stellar/stellar.module';
 
-type ComposerRequest = ProtocolTransactionRequest & { protocol: string; action: TransactionAction };
+type ComposerRequest = ProtocolTransactionRequest & {
+  protocol: string;
+  action: TransactionAction;
+  quoteExpiresAt?: string;
+};
 type Prepared = UnsignedProtocolTransaction & {
   status: 'simulated';
   transactionXdr: string;
@@ -47,6 +53,14 @@ export class TransactionsService {
     if (request.network !== this.config.get<'mainnet' | 'testnet'>('app.stellarNetwork', 'testnet'))
       throw new BadRequestException(
         'Transaction network does not match the configured Stellar network',
+      );
+    if (
+      request.action === 'swap' &&
+      request.quoteExpiresAt &&
+      Date.now() >= new Date(request.quoteExpiresAt).getTime()
+    )
+      throw new BadRequestException(
+        'Selected swap quote has expired. Refresh quotes before composing.',
       );
     const adapter = this.adapter(request.protocol);
     const builder = this.builder(adapter, request.action);
@@ -86,6 +100,12 @@ export class TransactionsService {
 
   monitor(hash: string) {
     return this.stellar.getTransaction(hash);
+  }
+
+  quotes(request: QuoteRequest) {
+    if (request.network !== this.config.get<'mainnet' | 'testnet'>('app.stellarNetwork', 'testnet'))
+      throw new BadRequestException('Quote network does not match the configured Stellar network');
+    return aggregateSwapQuotes(this.registry.list(), request);
   }
 
   private adapter(protocol: string): ProtocolAdapter {

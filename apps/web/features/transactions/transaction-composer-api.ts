@@ -13,6 +13,7 @@ export type ComposerRequest = {
   minReceived?: string;
   slippageBps?: string;
   positionId?: string;
+  quoteExpiresAt?: string;
 };
 export type ComposedTransaction = {
   lifecycle: 'previewed';
