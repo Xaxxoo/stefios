@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { IsIn, IsOptional, IsString } from 'class-validator';
-import type { ProtocolTransactionRequest } from '@sfo/protocol-adapters';
+import type { ProtocolTransactionRequest, QuoteRequest } from '@sfo/protocol-adapters';
 import type { ProtocolsService } from './protocols.service';
 
 class PrepareBlendTransactionDto {
@@ -11,6 +11,14 @@ class PrepareBlendTransactionDto {
   @IsOptional() @IsString() decimals?: string;
   @IsOptional() @IsString() reserveTokenIds?: string;
   @IsOptional() asset?: ProtocolTransactionRequest['asset'];
+  @IsOptional() quoteAsset?: ProtocolTransactionRequest['quoteAsset'];
+  @IsOptional() tokenAssets?: ProtocolTransactionRequest['tokenAssets'];
+  @IsOptional() @IsString() poolIndex?: string;
+  @IsOptional() amounts?: readonly string[];
+  @IsOptional() @IsString() minShares?: string;
+  @IsOptional() minAmounts?: readonly string[];
+  @IsOptional() @IsString() minReceived?: string;
+  @IsOptional() @IsString() slippageBps?: string;
 }
 
 @Controller({ path: 'protocols/blend', version: '1' })
@@ -51,6 +59,36 @@ export class ProtocolsController {
     @Body() body: PrepareBlendTransactionDto,
   ) {
     return this.protocols.prepare(operation, {
+      ...body,
+      decimals: body.decimals ? Number(body.decimals) : undefined,
+      reserveTokenIds: body.reserveTokenIds ? JSON.parse(body.reserveTokenIds) : undefined,
+    } as ProtocolTransactionRequest);
+  }
+
+  @Get('aquarius/markets') aquariusMarkets(
+    @Query('network') network: 'mainnet' | 'testnet' = 'testnet',
+  ) {
+    return this.protocols.aquariusMarkets(network);
+  }
+  @Get('aquarius/positions/:address') aquariusPositions(
+    @Param('address') address: string,
+    @Query('network') network: 'mainnet' | 'testnet' = 'testnet',
+  ) {
+    return this.protocols.aquariusPositions(network, address);
+  }
+  @Get('aquarius/yield') aquariusYield(
+    @Query('network') network: 'mainnet' | 'testnet' = 'testnet',
+  ) {
+    return this.protocols.aquariusYield(network);
+  }
+  @Post('aquarius/quotes') aquariusQuote(@Body() body: QuoteRequest) {
+    return this.protocols.aquariusQuote(body);
+  }
+  @Post('aquarius/transactions/:operation/prepare') prepareAquarius(
+    @Param('operation') operation: string,
+    @Body() body: PrepareBlendTransactionDto,
+  ) {
+    return this.protocols.aquariusPrepare(operation, {
       ...body,
       decimals: body.decimals ? Number(body.decimals) : undefined,
       reserveTokenIds: body.reserveTokenIds ? JSON.parse(body.reserveTokenIds) : undefined,

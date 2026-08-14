@@ -1,6 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BlendSdkAdapter, ProtocolRegistry } from '@sfo/protocol-adapters';
+import {
+  AquariusHttpProvider,
+  AquariusSdkAdapter,
+  BlendSdkAdapter,
+  ProtocolRegistry,
+} from '@sfo/protocol-adapters';
+import type { AquariusConfig } from '@sfo/protocol-adapters';
 import type { BlendConfig, BlendSimulationResult } from '@sfo/protocol-adapters';
 import type { Network } from '@sfo/shared';
 import { STELLAR_RPC_PROVIDER } from '../stellar/stellar.module';
@@ -64,7 +70,46 @@ function poolIds(value: string | undefined): readonly string[] {
             };
           },
         });
-        return new ProtocolRegistry([adapter]);
+        const aquariusConfig: AquariusConfig = {
+          mainnet:
+            config.get<string>('app.aquariusMainnetApi') &&
+            config.get<string>('app.aquariusMainnetRpc') &&
+            config.get<string>('app.aquariusMainnetPassphrase') &&
+            config.get<string>('app.aquariusMainnetRouter')
+              ? {
+                  apiUrl: config.getOrThrow<string>('app.aquariusMainnetApi'),
+                  rpc: config.getOrThrow<string>('app.aquariusMainnetRpc'),
+                  passphrase: config.getOrThrow<string>('app.aquariusMainnetPassphrase'),
+                  routerContractId: config.getOrThrow<string>('app.aquariusMainnetRouter'),
+                }
+              : undefined,
+          testnet:
+            config.get<string>('app.aquariusTestnetApi') &&
+            config.get<string>('app.aquariusTestnetRpc') &&
+            config.get<string>('app.aquariusTestnetPassphrase') &&
+            config.get<string>('app.aquariusTestnetRouter')
+              ? {
+                  apiUrl: config.getOrThrow<string>('app.aquariusTestnetApi'),
+                  rpc: config.getOrThrow<string>('app.aquariusTestnetRpc'),
+                  passphrase: config.getOrThrow<string>('app.aquariusTestnetPassphrase'),
+                  routerContractId: config.getOrThrow<string>('app.aquariusTestnetRouter'),
+                }
+              : undefined,
+        };
+        const aquariusData = new AquariusHttpProvider(aquariusConfig);
+        const aquarius = new AquariusSdkAdapter(aquariusConfig, aquariusData, {
+          getAccountSequence: async (account: string, _network: Network) =>
+            (await stellar.getAccount(account)).sequence,
+          simulate: async (transactionXdr: string, _network: Network) => {
+            const result = await stellar.simulateTransaction(transactionXdr);
+            const failed = 'error' in result && Boolean(result.error);
+            return {
+              status: failed ? ('failed' as const) : ('success' as const),
+              error: failed ? String(result.error) : undefined,
+            };
+          },
+        });
+        return new ProtocolRegistry([adapter, aquarius]);
       },
     },
     ProtocolsService,
