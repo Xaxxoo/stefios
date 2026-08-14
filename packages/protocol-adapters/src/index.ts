@@ -8,3 +8,4 @@ export * from './aquarius-sdk';
 export * from './sushi-sdk';
 export * from './templar-sdk';
 export * from './analytics';
+export * from './quote-aggregator';

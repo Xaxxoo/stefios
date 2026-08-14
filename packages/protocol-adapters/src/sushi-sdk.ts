@@ -5,6 +5,7 @@ import type {
   ProtocolMarket,
   ProtocolMarketMetrics,
   ProtocolPosition,
+  ProtocolQuote,
   ProtocolRiskMetrics,
   ProtocolTransactionRequest,
   ProtocolYieldMetrics,
@@ -45,6 +46,7 @@ export type SushiProvider = {
   getPositions?(network: Network, account: string): Promise<readonly SushiPosition[]>;
   getYield?(network: Network): Promise<readonly ProtocolYieldMetrics[]>;
   getRisk?(network: Network, account: string): Promise<readonly ProtocolRiskMetrics[]>;
+  quote?(request: import('./quote-source').QuoteRequest): Promise<ProtocolQuote>;
   buildTransaction?(
     operation: 'addLiquidity' | 'removeLiquidity' | 'collectFees' | 'swap',
     request: ProtocolTransactionRequest,
@@ -153,6 +155,13 @@ export class SushiSdkAdapter extends BaseProtocolAdapter {
   }
   override buildSwapTransaction(request: ProtocolTransactionRequest) {
     return this.action('swap', request);
+  }
+  getQuote(request: import('./quote-source').QuoteRequest) {
+    if (!this.provider.quote)
+      return Promise.reject(
+        new SushiDataUnavailableError('Sushi quote interface is not configured'),
+      );
+    return this.provider.quote(request);
   }
   private action(
     operation: 'addLiquidity' | 'removeLiquidity' | 'collectFees' | 'swap',

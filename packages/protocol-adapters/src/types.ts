@@ -179,6 +179,26 @@ export type ProtocolQuote = {
   source: string;
   quotedAt: Date;
   stale: boolean;
+  networkFee?: string | null;
+  protocolFees?: string | null;
+};
+export type UnifiedSwapQuote = {
+  inputAsset: AssetId;
+  inputAmount: string;
+  outputAsset: AssetId;
+  expectedOutput: string;
+  minimumReceived: string;
+  exchangeRate: string;
+  priceImpact: string | null;
+  networkFee: string | null;
+  protocolFees: string | null;
+  route: readonly string[];
+  provider: ProtocolId;
+  expiration: Date;
+  stale: boolean;
+  risk: 'low' | 'medium' | 'high' | 'unknown';
+  score: string;
+  warnings: readonly string[];
 };
 
 export type UnsignedProtocolTransaction = {
