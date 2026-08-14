@@ -6,3 +6,4 @@ export * from './blend-sdk';
 export * from './quote-source';
 export * from './aquarius-sdk';
 export * from './sushi-sdk';
+export * from './templar-sdk';

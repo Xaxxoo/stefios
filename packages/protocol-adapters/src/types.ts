@@ -83,6 +83,16 @@ export type ProtocolPosition = {
   inRange?: boolean | null;
   fees?: readonly AssetAmount[];
   apr?: string | null;
+  collateral?: readonly AssetAmount[];
+  collateralValue?: CurrencyAmount | null;
+  borrowed?: readonly AssetAmount[];
+  borrowedValue?: CurrencyAmount | null;
+  ltv?: string | null;
+  liquidationThreshold?: string | null;
+  borrowRate?: string | null;
+  positionStatus?: string | null;
+  lifecycleState?: string | null;
+  operationId?: string | null;
 };
 
 export type ProtocolReward = {
