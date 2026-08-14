@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../features/product-routes/product-route';
+import { SwapPage as SwapScreen } from '../../../features/swap/swap-page';
 export const metadata: Metadata = {
   title: 'Swap',
   description: 'Wallet-signed Stellar swap preparation.',
 };
 export default function SwapPage() {
-  return <ProductRoute kind="swap" />;
+  return <SwapScreen />;
 }
