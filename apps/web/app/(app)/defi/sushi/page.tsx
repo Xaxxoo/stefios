@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../../features/product-routes/product-route';
+import { SushiPage as SushiScreen } from '../../../../features/sushi/sushi-page';
 export const metadata: Metadata = {
   title: 'Sushi',
   description: 'Sushi liquidity position context.',
 };
 export default function SushiPage() {
-  return <ProductRoute kind="sushi" />;
+  return <SushiScreen />;
 }
