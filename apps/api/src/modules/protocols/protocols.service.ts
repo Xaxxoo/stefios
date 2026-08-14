@@ -1,4 +1,5 @@
 import { Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import Decimal from 'decimal.js';
 import type {
   DeFiAggregation,
   ProtocolRegistry,
@@ -214,11 +215,14 @@ export class ProtocolsService {
       );
     if (filters.yield) {
       const direction = filters.yield === 'lowest' ? -1 : 1;
-      opportunities.sort(
-        (a, b) =>
-          direction *
-          (Number(b.totalEstimatedYield ?? '-1') - Number(a.totalEstimatedYield ?? '-1')),
-      );
+      opportunities.sort((a, b) => {
+        const left = a.totalEstimatedYield == null ? null : new Decimal(a.totalEstimatedYield);
+        const right = b.totalEstimatedYield == null ? null : new Decimal(b.totalEstimatedYield);
+        if (!left && !right) return 0;
+        if (!left) return 1;
+        if (!right) return -1;
+        return direction * right.cmp(left);
+      });
     }
     return opportunities;
   }
