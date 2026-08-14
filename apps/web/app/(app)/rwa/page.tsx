@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../features/product-routes/product-route';
+import { RwaDirectoryPage } from '../../../features/rwa/rwa-pages';
 export const metadata: Metadata = {
   title: 'RWAs',
   description: 'Tokenized real-world asset intelligence on Stellar.',
 };
 export default function RwaPage() {
-  return <ProductRoute kind="rwa" />;
+  return <RwaDirectoryPage />;
 }

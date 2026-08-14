@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { ProductRoute } from '../../../../features/product-routes/product-route';
+import { RwaDetailPage } from '../../../../features/rwa/rwa-pages';
 export const metadata: Metadata = {
   title: 'RWA product',
   description: 'Source-aware tokenized product information.',
 };
-export default async function RwaDetailPage({ params }: { params: Promise<{ assetId: string }> }) {
+export default async function RwaDetailRoute({ params }: { params: Promise<{ assetId: string }> }) {
   const { assetId } = await params;
-  return <ProductRoute kind="rwa-detail" detail={decodeURIComponent(assetId)} />;
+  return <RwaDetailPage assetId={decodeURIComponent(assetId)} />;
 }
