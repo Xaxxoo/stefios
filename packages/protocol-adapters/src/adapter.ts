@@ -166,6 +166,8 @@ export abstract class BaseProtocolAdapter implements ProtocolAdapter {
       slippageBps: request.slippageBps ?? null,
       destination: request.destination ?? null,
       positionId: request.positionId ?? null,
+      decimals: request.decimals ?? null,
+      reserveTokenIds: request.reserveTokenIds ?? [],
       requiredSigners: [request.account],
       status: 'unsigned',
     };

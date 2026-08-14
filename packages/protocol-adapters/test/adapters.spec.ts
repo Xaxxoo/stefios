@@ -56,6 +56,8 @@ test('builds a normalized unsigned intent with the wallet as the only signer', a
     slippageBps: null,
     destination: null,
     positionId: null,
+    decimals: null,
+    reserveTokenIds: [],
     requiredSigners: [request.account],
     status: 'unsigned',
   });

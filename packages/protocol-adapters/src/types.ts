@@ -30,6 +30,27 @@ export type ProtocolMarket = {
   enabled: boolean;
   source: string;
   asOf: Date;
+  reserves?: readonly ProtocolReserveMetrics[];
+};
+
+export type ProtocolIncentive = {
+  kind: 'supply' | 'borrow';
+  token: AssetId | null;
+  rate: string | null;
+  source: string;
+};
+
+export type ProtocolReserveMetrics = {
+  asset: AssetId;
+  decimals: number;
+  totalSupply: string;
+  totalBorrow: string;
+  supplyApr: string | null;
+  supplyApy: string | null;
+  borrowApr: string | null;
+  borrowApy: string | null;
+  utilization: string | null;
+  incentives: readonly ProtocolIncentive[];
 };
 
 export type ProtocolMarketMetrics = {
@@ -41,6 +62,7 @@ export type ProtocolMarketMetrics = {
   utilization: string | null;
   asOf: Date;
   source: string;
+  reserves?: readonly ProtocolReserveMetrics[];
 };
 
 export type ProtocolPosition = {
@@ -54,9 +76,19 @@ export type ProtocolPosition = {
   healthRatio: string | null;
   source: string;
   asOf: Date;
+  rewards?: readonly ProtocolReward[];
 };
 
-export type ProtocolYieldMetrics = YieldOpportunity & { source: string };
+export type ProtocolReward = {
+  token: AssetId | null;
+  amount: string;
+  source: string;
+};
+
+export type ProtocolYieldMetrics = Omit<YieldOpportunity, 'tvl'> & {
+  tvl: CurrencyAmount | null;
+  source: string;
+};
 export type ProtocolRiskMetrics = RiskMetric & {
   protocol: ProtocolId;
   marketId: string | null;
@@ -75,6 +107,8 @@ export type ProtocolTransactionRequest = {
   slippageBps?: string;
   destination?: string;
   positionId?: string;
+  decimals?: number;
+  reserveTokenIds?: readonly number[];
 };
 
 export type UnsignedProtocolTransaction = {
@@ -90,8 +124,10 @@ export type UnsignedProtocolTransaction = {
   slippageBps: string | null;
   destination: string | null;
   positionId: string | null;
+  decimals: number | null;
+  reserveTokenIds: readonly number[];
   requiredSigners: readonly string[];
-  status: 'unsigned';
+  status: 'unsigned' | 'simulated';
 };
 
 export type ProtocolDataSource = {
