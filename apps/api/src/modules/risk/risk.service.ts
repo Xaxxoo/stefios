@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import type { Repository } from 'typeorm';
 import { RwaMetadata } from '../../database/entities';
 import { canonicalAssetId } from '../assets/asset-identity';
-import { PortfolioService } from '../portfolio/portfolio.service';
-import { ProtocolsService } from '../protocols/protocols.service';
+import type { PortfolioService } from '../portfolio/portfolio.service';
+import type { ProtocolsService } from '../protocols/protocols.service';
 import { calculatePortfolioRisk } from './risk-calculation';
 
 @Injectable()
