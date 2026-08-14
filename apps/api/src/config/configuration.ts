@@ -27,4 +27,5 @@ export const configuration = registerAs('app', () => ({
   authSessionTtlSeconds: Number(process.env.AUTH_SESSION_TTL_SECONDS ?? 86400),
   anchorRequestTimeoutMs: Number(process.env.ANCHOR_REQUEST_TIMEOUT_MS ?? 8000),
   anchorStateTtlSeconds: Number(process.env.ANCHOR_STATE_TTL_SECONDS ?? 1800),
+  crossChainProvider: process.env.CROSS_CHAIN_PROVIDER,
 }));

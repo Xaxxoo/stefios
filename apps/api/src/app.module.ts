@@ -23,6 +23,8 @@ import { CrossChainModule } from './modules/cross-chain/cross-chain.module';
 import { RiskModule } from './modules/risk/risk.module';
 import { YieldModule } from './modules/yield/yield.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { WatchlistModule } from './modules/watchlist/watchlist.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     RiskModule,
     YieldModule,
     NotificationsModule,
+    WatchlistModule,
+    AlertsModule,
   ],
 })
 export class AppModule implements NestModule {

@@ -89,23 +89,35 @@ export class AnchorTransaction extends ApplicationEntity {
 export class CrossChainTransfer extends ApplicationEntity {
   @Column('uuid') userId!: string;
   @ManyToOne(() => User, { onDelete: 'CASCADE' }) @JoinColumn({ name: 'userId' }) user!: User;
+  @Column({ length: 64, default: 'unknown' }) provider!: string;
   @Column({ length: 32 }) sourceNetwork!: string;
   @Column({ length: 32 }) destinationNetwork!: string;
+  @Column({ length: 128, nullable: true }) sourceAsset!: string | null;
+  @Column({ length: 128, nullable: true }) destinationAsset!: string | null;
   @Column({ length: 128, nullable: true }) sourceTransactionHash!: string | null;
   @Column({ length: 128, nullable: true }) destinationTransactionHash!: string | null;
   @Column('uuid', { nullable: true }) assetId!: string | null;
   @Column(NUMERIC_COLUMN) amount!: string;
+  @Column({ type: 'jsonb', nullable: true }) fees!: Record<string, unknown> | null;
   @Column({ length: 32 }) status!: string;
+  @Column({ length: 32, default: 'created' }) state!: string;
+  @Column({ length: 64, nullable: true }) recoveryState!: string | null;
+  @Column({ type: 'text', nullable: true }) error!: string | null;
+  @Column({ type: 'timestamptz', nullable: true }) completedAt!: Date | null;
   @Column(JSONB_COLUMN) providerMetadata!: Record<string, unknown> | null;
 }
 
 @Entity('watchlist_items')
-@Unique(['userId', 'assetId'])
+@Unique(['userId', 'targetType', 'targetRef'])
 export class WatchlistItem extends ApplicationEntity {
   @Column('uuid') userId!: string;
   @ManyToOne(() => User, { onDelete: 'CASCADE' }) @JoinColumn({ name: 'userId' }) user!: User;
-  @Column('uuid') assetId!: string;
-  @ManyToOne(() => Asset, { onDelete: 'CASCADE' }) @JoinColumn({ name: 'assetId' }) asset!: Asset;
+  @Column({ length: 32, default: 'asset' }) targetType!: string;
+  @Column({ length: 255 }) targetRef!: string;
+  @Column('uuid', { nullable: true }) assetId!: string | null;
+  @ManyToOne(() => Asset, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'assetId' })
+  asset!: Asset | null;
 }
 
 @Entity('alert_rules')
@@ -116,6 +128,9 @@ export class AlertRule extends ApplicationEntity {
   @Column({ length: 64 }) type!: string;
   @Column(JSONB_COLUMN) conditions!: Record<string, unknown> | null;
   @Column({ default: true }) enabled!: boolean;
+  @Column({ type: 'integer', default: 3600 }) cooldownSeconds!: number;
+  @Column({ length: 255, nullable: true }) dedupeKey!: string | null;
+  @Column({ type: 'timestamptz', nullable: true }) lastTriggeredAt!: Date | null;
 }
 
 @Entity('notifications')
