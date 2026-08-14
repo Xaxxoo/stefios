@@ -79,6 +79,10 @@ export type ProtocolPosition = {
   source: string;
   asOf: Date;
   rewards?: readonly ProtocolReward[];
+  priceRange?: { lower: string | null; upper: string | null; unit: string } | null;
+  inRange?: boolean | null;
+  fees?: readonly AssetAmount[];
+  apr?: string | null;
 };
 
 export type ProtocolReward = {

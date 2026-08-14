@@ -5,3 +5,4 @@ export * from './registry';
 export * from './blend-sdk';
 export * from './quote-source';
 export * from './aquarius-sdk';
+export * from './sushi-sdk';
