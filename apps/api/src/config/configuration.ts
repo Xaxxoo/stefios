@@ -9,6 +9,12 @@ export const configuration = registerAs('app', () => ({
   stellarNetwork: process.env.STELLAR_NETWORK ?? 'testnet',
   stellarRpcUrl: process.env.STELLAR_RPC_URL,
   stablecoinPricesJson: process.env.STABLECOIN_PRICES_JSON,
+  blendMainnetRpc: process.env.BLEND_MAINNET_RPC,
+  blendMainnetPassphrase: process.env.BLEND_MAINNET_PASSPHRASE,
+  blendMainnetPoolIdsJson: process.env.BLEND_MAINNET_POOL_IDS_JSON,
+  blendTestnetRpc: process.env.BLEND_TESTNET_RPC,
+  blendTestnetPassphrase: process.env.BLEND_TESTNET_PASSPHRASE,
+  blendTestnetPoolIdsJson: process.env.BLEND_TESTNET_POOL_IDS_JSON,
   authChallengeTtlSeconds: Number(process.env.AUTH_CHALLENGE_TTL_SECONDS ?? 300),
   authSessionTtlSeconds: Number(process.env.AUTH_SESSION_TTL_SECONDS ?? 86400),
 }));
