@@ -1,4 +1,4 @@
-export interface ProviderAdapter<TNormalized> {
-  readonly name: string;
-  getData(accountId: string): Promise<TNormalized>;
-}
+export * from './types';
+export * from './adapter';
+export * from './adapters';
+export * from './registry';

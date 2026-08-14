@@ -2,7 +2,21 @@
   "name": "@sfo/protocol-adapters",
   "private": true,
   "version": "0.1.0",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/**/*.spec.ts"
+  },
+  "dependencies": {
+    "@sfo/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
   }
 }

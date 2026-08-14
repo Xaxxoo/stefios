@@ -188,7 +188,15 @@ importers:
         specifier: ^4.19.2
         version: 4.23.12
 
-  packages/protocol-adapters: {}
+  packages/protocol-adapters:
+    dependencies:
+      '@sfo/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.12
 
   packages/shared:
     dependencies:
