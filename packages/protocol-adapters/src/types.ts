@@ -31,6 +31,8 @@ export type ProtocolMarket = {
   source: string;
   asOf: Date;
   reserves?: readonly ProtocolReserveMetrics[];
+  poolType?: string | null;
+  fee?: string | null;
 };
 
 export type ProtocolIncentive = {
@@ -43,8 +45,8 @@ export type ProtocolIncentive = {
 export type ProtocolReserveMetrics = {
   asset: AssetId;
   decimals: number;
-  totalSupply: string;
-  totalBorrow: string;
+  totalSupply: string | null;
+  totalBorrow: string | null;
   supplyApr: string | null;
   supplyApy: string | null;
   borrowApr: string | null;
@@ -109,6 +111,28 @@ export type ProtocolTransactionRequest = {
   positionId?: string;
   decimals?: number;
   reserveTokenIds?: readonly number[];
+  tokenAssets?: readonly AssetId[];
+  poolIndex?: string;
+  amounts?: readonly string[];
+  minShares?: string;
+  minAmounts?: readonly string[];
+  quote?: ProtocolQuote;
+};
+
+export type ProtocolQuote = {
+  protocol: ProtocolId;
+  network: Network;
+  tokenIn: AssetId;
+  tokenOut: AssetId;
+  amountIn: string;
+  amountOut: string;
+  route: readonly string[];
+  routeXdr: string;
+  priceImpact: string | null;
+  slippageBps: string;
+  source: string;
+  quotedAt: Date;
+  stale: boolean;
 };
 
 export type UnsignedProtocolTransaction = {

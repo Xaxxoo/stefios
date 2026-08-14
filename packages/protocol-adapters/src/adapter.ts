@@ -1,4 +1,5 @@
 import type { Network } from '@sfo/shared';
+import type { QuoteRequest } from './quote-source';
 import type {
   ProtocolDataSource,
   ProtocolCapabilities,
@@ -58,6 +59,7 @@ export interface ProtocolAdapter {
   ): Promise<UnsignedProtocolTransaction>;
   buildClaimTransaction(request: ProtocolTransactionRequest): Promise<UnsignedProtocolTransaction>;
   buildSwapTransaction(request: ProtocolTransactionRequest): Promise<UnsignedProtocolTransaction>;
+  getQuote?(request: QuoteRequest): Promise<import('./types').ProtocolQuote>;
 }
 
 const EMPTY_CAPABILITIES: ProtocolCapabilities = {

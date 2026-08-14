@@ -3,3 +3,5 @@ export * from './adapter';
 export * from './adapters';
 export * from './registry';
 export * from './blend-sdk';
+export * from './quote-source';
+export * from './aquarius-sdk';
