@@ -25,4 +25,6 @@ export const configuration = registerAs('app', () => ({
   aquariusTestnetRouter: process.env.AQUARIUS_TESTNET_ROUTER,
   authChallengeTtlSeconds: Number(process.env.AUTH_CHALLENGE_TTL_SECONDS ?? 300),
   authSessionTtlSeconds: Number(process.env.AUTH_SESSION_TTL_SECONDS ?? 86400),
+  anchorRequestTimeoutMs: Number(process.env.ANCHOR_REQUEST_TIMEOUT_MS ?? 8000),
+  anchorStateTtlSeconds: Number(process.env.ANCHOR_STATE_TTL_SECONDS ?? 1800),
 }));
