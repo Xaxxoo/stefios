@@ -84,7 +84,12 @@ export function RampsPage() {
       searchParams.get('transaction') ?? searchParams.get('id') ?? searchParams.get('localId');
     const storage = globalThis as typeof globalThis & { localStorage?: Storage };
     const stored = storage.localStorage?.getItem('sfo_anchor_return');
-    const storedId = stored ? (JSON.parse(stored) as { localId?: string }) : null;
+    let storedId: { localId?: string } | null = null;
+    try {
+      storedId = stored ? (JSON.parse(stored) as { localId?: string }) : null;
+    } catch {
+      storage.localStorage?.removeItem('sfo_anchor_return');
+    }
     const localId = queryId ?? storedId?.localId ?? null;
     if (localId) {
       setReturnedLocalId(localId);
